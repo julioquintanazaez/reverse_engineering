@@ -1,0 +1,24 @@
+# Python stuff
+__pycache__/
+envreverse/
+
+# Django stuff:
+*.log
+db.sqlite
+#db.sqlite3
+db.sqlite-journal
+
+# Environments
+.env
+.venv
+env/
+venv/
+/venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Files
+https-reverse-engineering-request.txt
+
+
