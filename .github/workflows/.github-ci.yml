@@ -16,15 +16,15 @@ jobs:
       - name: Set up SSH
         uses: webfactory/ssh-agent@v0.5.3
         with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_REVERSE }}
 
       - name: Deploy to server
         run: |
-          ssh -o StrictHostKeyChecking=no -t ubuntu@98.85.52.74 "cd /var/www/apireverseengenieringhaplotype.pgxsoftware.com && git pull && exit"
+          ssh -o StrictHostKeyChecking=no -t ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "cd ${{ secrets.DEPLOY_PATH }} && git pull && exit"
           
       - name: Deploy to server
         run: |
-          ssh -t ubuntu@98.85.52.74 "cd /var/www/apireverseengenieringhaplotype.pgxsoftware.com; 
+          ssh -t ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "cd ${{ secrets.DEPLOY_PATH }}; 
           source venv/bin/activate; 
           python manage.py migrate; 
           python manage.py collectstatic --noinput; 
@@ -34,7 +34,7 @@ jobs:
 
 
           # Navegar al directorio del sitio y aplicar migraciones
-          cd /var/www/apireverseengenieringhaplotype.pgxsoftware.com 
+          cd ${{ secrets.SSH_PRIVATE_KEY_REVERSE }} 
           python3 manage.py migrate  # Aplicar migraciones de Django
           python3 manage.py collectstatic --noinput  # Recolectar archivos estáticos
           # Iniciar el servidor o cualquier otro comando necesario
