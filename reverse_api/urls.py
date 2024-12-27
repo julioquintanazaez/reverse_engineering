@@ -18,7 +18,7 @@ schema_view = get_schema_view(
     openapi.Info(
         title="Mi API",
         default_version='v1',
-        description="Documentación de la API para buscar productos.",
+        description="Documentación de la  API para buscar productos.",
         terms_of_service="https://www.google.com/policies/terms/",
         contact=openapi.Contact(email="contact@miapi.local"),
         license=openapi.License(name="BSD License"),
