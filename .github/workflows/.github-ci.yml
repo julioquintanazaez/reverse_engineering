@@ -30,26 +30,13 @@ jobs:
 
       - name: Deploy to server
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }} "cd ${{ secrets.DEPLOY_PATH_REVERSE }} && git pull && exit"
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }} "cd ${{ secrets.DEPLOY_PATH_REVERSE }} && exit"
     
-      
-      - name: Desplegar
+      - name: Configurar SSH
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }} << 'EOF'
-            if [ ! -d "${{ secrets.DEPLOY_PATH_REVERSE }}/.git" ]; then
-              git clone ${{ secrets.GIT_PATH }} ${{ secrets.DEPLOY_PATH_REVERSE }}
-            fi
-            cd ${{ secrets.DEPLOY_PATH_REVERSE }} || exit
-            git pull origin main || exit
-            source venv/bin/activate || exit
-            python3 manage.py migrate
-            python3 manage.py collectstatic --noinput
-            sudo systemctl restart reverse_engineering_gunicorn.service
-          EOF
-
-      
-    
-
-           
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY_REVERSE_PUTTY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.SERVER_IP_REVERSE }} >> ~/.ssh/known_hosts
 
      
