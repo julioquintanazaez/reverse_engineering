@@ -40,11 +40,13 @@ jobs:
           ssh-keyscan -H ${{ secrets.SERVER_IP_REVERSE }} >> ~/.ssh/known_hosts
 
       
-    
-      
-      - name: Clonar el repositorio de GitHub
-        run: |
+      - name: Clonar un repositorio de GitHub en el servidor
+        hosts: all
+        gather_facts: no
+        tasks:
+        - name: Clonar el repositorio de GitHub
           git: 
-            repo: 'git@github.com:julioquintanazaez/reverse_engineering.git'  
-            dest: '/var/www/apireverseengenieringhaplotype.pgxsoftware.com'  
+            repo: 'git@github.com:julioquintanazaez/reverse_engineering.git'  # Reemplaza con la URL de tu repositorio
+            dest: '/var/www/apireverseengenieringhaplotype.pgxsoftware.com'  # Reemplaza con la ruta donde deseas clonar el repositorio
             version: 'main'  # Reemplaza con la rama que deseas clonar
+          become: yes  # Si necesitas permisos de superusuario
