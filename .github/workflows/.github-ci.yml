@@ -28,15 +28,6 @@ jobs:
             python -m pip install --upgrade pip  
             pip install -r requirements.txt  # Asegúrate de tener este archivo en tu proyecto
 
-      - name: Set to server folder
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }} "cd  ${{ secrets.DEPLOY_PATH_REVERSE }}"
-    
-      - name: Ejecutar migraciones
-        run: |
-            python manage.py migrate  
-            python manage.py collectstatic --noinput
-
       - name: Deploy server
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }} << 'EOF'
