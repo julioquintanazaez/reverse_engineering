@@ -13,10 +13,10 @@ jobs:
       - name: Checkout code        #Funciona
         uses: actions/checkout@v2  #Funciona
 
-      - name: Configurar Python   #Funciona
-        uses: actions/setup-python@v2    #Funciona
+      - name: Configurar Python   
+        uses: actions/setup-python@v2   
         with:
-          python-version: '3.11'  # Funciona
+          python-version: '3.11'  
   
       - name: Set up SSH    #Funciona
         uses: webfactory/ssh-agent@v0.5.3   #Funciona
@@ -24,9 +24,14 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_REVERSE_PUTTY }}  #Funciona
 
       - name: Instalar dependencias
-        run: |
-            python -m pip install --upgrade pip
+        run: |  
+            python -m pip install --upgrade pip  
             pip install -r requirements.txt  # Asegúrate de tener este archivo en tu proyecto
+
+      - name: Deploy to server
+        run: |
+          ssh -o StrictHostKeyChecking=no -t ubuntu@98.85.52.74 "cd /var/www/reverseengenieringhaplotype.pgx.software.com && git pull && exit"
+    
     
 
      
