@@ -6,16 +6,21 @@ on:
       - main  # Cambia esto según tu rama principal
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
+  deploy:  #Funciona
+    runs-on: ubuntu-latest  #Funciona
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    steps:    #Funciona
+      - name: Checkout code        #Funciona
+        uses: actions/checkout@v2  #Funciona
 
-      - name: Set up SSH
-        uses: webfactory/ssh-agent@v0.5.3
+      - name: Configurar Python
+        uses: actions/setup-python@v2
         with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_REVERSE_PUTTY }}
+          python-version: '3.11'  # Cambia la versión según tus necesidades
+  
+      - name: Set up SSH    #Funciona
+        uses: webfactory/ssh-agent@v0.5.3   #Funciona
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_REVERSE_PUTTY }}  #Funciona
 
      
