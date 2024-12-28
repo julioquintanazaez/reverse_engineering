@@ -40,8 +40,11 @@ jobs:
           ssh-keyscan -H ${{ secrets.SERVER_IP_REVERSE }} >> ~/.ssh/known_hosts
 
       
-     
-
-      - name: Deploy to server
+    
+      
+      - name: Clonar el repositorio de GitHub
         run: |
-            ssh -o StrictHostKeyChecking=no ubuntu@98.85.52.74 "ls /var/www/apireverseengenieringhaplotype.pgxsoftware.com/"
+          git: 
+            repo: 'git@github.com:julioquintanazaez/reverse_engineering.git'  
+            dest: '/var/www/apireverseengenieringhaplotype.pgxsoftware.com'  
+            version: 'main'  # Reemplaza con la rama que deseas clonar
