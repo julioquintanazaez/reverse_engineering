@@ -30,7 +30,7 @@ jobs:
 
       - name: Deploy to server
         run: |
-          ssh -o StrictHostKeyChecking=no -t ubuntu@98.85.52.74 "cd /var/www/reverseengenieringhaplotype.pgx.software.com && git pull && exit"
+          ssh -o StrictHostKeyChecking=no ubuntu@98.85.52.74 "ls /var/www/"
     
     
 
