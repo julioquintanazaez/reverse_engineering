@@ -32,14 +32,20 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }} "cd ${{ secrets.DEPLOY_PATH_REVERSE }} && git pull && exit"
     
-      - name: Deploy to server
+      
+      - name: Desplegar
         run: |
-          ssh -o ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }} "cd ${{ secrets.DEPLOY_PATH_REVERSE }}; 
-          source venv/bin/activate; 
-          python manage.py migrate; 
-          python manage.py collectstatic --noinput; 
-          sudo systemctl restart reverse_engineering_gunicorn.service; 
-          exec \$SHELL --login"
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }} << 'EOF'
+            if [ ! -d "${{ secrets.DEPLOY_PATH_REVERSE }}/.git" ]; then
+              git clone ${{ secrets.GIT_PATH }} ${{ secrets.DEPLOY_PATH_REVERSE }}
+            fi
+            cd ${{ secrets.DEPLOY_PATH_REVERSE }} || exit
+            git pull origin main || exit
+            source venv/bin/activate || exit
+            python3 manage.py migrate
+            python3 manage.py collectstatic --noinput
+            sudo systemctl restart reverse_engineering_gunicorn.service
+          EOF
 
       
     
