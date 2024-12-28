@@ -30,7 +30,7 @@ jobs:
 
       - name: Deploy to server
         run: |
-          ssh -o StrictHostKeyChecking=no -t ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }} "cd ${{ secrets.DEPLOY_PATH_REVERSE }} && git pull && exit"
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }} "cd ${{ secrets.DEPLOY_PATH_REVERSE }} && git pull && exit"
     
       - name: Deploy to server
         run: |
