@@ -43,7 +43,7 @@ jobs:
       #    ssh ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }} 'cd ${{ secrets.DEPLOY_PATH_REVERSE }} && pip install -r requirements.txt'
 
       - name: Echo hello world
-        run: echo "Hello world! done to copy files"
+        run: echo "${{ secrets.DEPLOY_PATH_REVERSE }}"
   
 
       
