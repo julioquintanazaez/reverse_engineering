@@ -22,10 +22,12 @@ jobs:
         run: |  
           python -m pip install --upgrade pip            
   
-      - name: Set up SSH    #Funciona
-        uses: webfactory/ssh-agent@v0.5.3   #Funciona
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_REVERSE_PUTTY }}  #Funciona
+      - name: Set up SSH
+        run: |
+            mkdir -p ~/.ssh
+            echo "${{ secrets.SSH_PRIVATE_KEY_REVERSE_PUTTY }}" > ~/.ssh/id_rsa
+            chmod 600 ~/.ssh/id_rsa
+            ssh-keyscan -H 92.98.2.1 >> ~/.ssh/known_hosts
             
       - name: Test SSH Connection
         run: |
