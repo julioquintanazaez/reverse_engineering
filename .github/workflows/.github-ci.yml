@@ -30,6 +30,11 @@ jobs:
       - name: Test SSH Connection
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }} "echo 'SSH connection successful!'"
+      
+      - name: Change permissions on server
+        run: 
+        env:
+            SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY_REVERSE_PUTTY }}
 
       - name: Copy files to server
         run: | 
