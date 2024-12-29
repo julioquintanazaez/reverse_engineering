@@ -34,6 +34,10 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }} "echo 'SSH connection successful!'"
       
       - name: Install dependencies
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY_REVERSE_PUTTY }}
+          SERVER_USER: ${{ secrets.SERVER_USER_REVERSE }}
+          SERVER_IP: ${{ secrets.SERVER_IP_REVERSE }}
         run: |
             python3 -m venv venv  # Crear un entorno virtual
             source venv/bin/activate  # Activar el entorno virtual
