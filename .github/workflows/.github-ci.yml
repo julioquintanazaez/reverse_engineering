@@ -31,19 +31,19 @@ jobs:
             
       - name: Test SSH Connection
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }} "echo 'SSH connection successful!'"
+          ssh -o StrictHostKeyChecking=no root@${{ secrets.SERVER_IP_REVERSE }} "echo 'SSH connection successful!'"
       
       - name: Copy files to server
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY_REVERSE_PUTTY }}
-          SERVER_USER: ${{ secrets.SERVER_USER_REVERSE }}
+          SERVER_USER: root
           SERVER_IP: ${{ secrets.SERVER_IP_REVERSE }}
         run: |
           # Configura la clave SSH
           echo "$SSH_PRIVATE_KEY" > private_key
           chmod 600 private_key
           # Copia los archivos al servidor
-          scp -i private_key -r ./* ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }}:${{ secrets.DEPLOY_PATH_REVERSE }}
+          scp -i private_key -r ./* root@${{ secrets.SERVER_IP_REVERSE }}:${{ secrets.DEPLOY_PATH_REVERSE }}
 
 
       #- name: Install dependencies
