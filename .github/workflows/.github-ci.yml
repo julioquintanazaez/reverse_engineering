@@ -25,9 +25,9 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.SERVER_IP_REVERSE }} >> ~/.ssh/known_hosts
 
-      - name: Copy files to server
-        run: | 
-          scp -r ./* ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }}:${{ secrets.DEPLOY_PATH_REVERSE }}
+      #- name: Copy files to server
+      #  run: | 
+      #    scp -r ./* ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }}:${{ secrets.DEPLOY_PATH_REVERSE }}
 
       - name: Install dependencies
         run: | 
