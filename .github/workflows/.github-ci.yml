@@ -47,7 +47,7 @@ jobs:
 
       - name: Crea entorno virtual
         run: |
-            python -m venv venv  # Crear un entorno virtual
+            python3 -m venv ${{ secrets.DEPLOY_PATH_REVERSE }}/venv  # Crear un entorno virtual
             source venv/bin/activate  # Activar el entorno virtual            
 
       - name: Install dependencies on remote server
