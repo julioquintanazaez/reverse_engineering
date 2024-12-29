@@ -17,7 +17,17 @@ jobs:
         uses: actions/setup-python@v2   
         with:
           python-version: '3.11'  
+
+      - name: Instalar dependencias
+        run: |  
+          python -m pip install --upgrade pip  
+          pip install -r requirements.txt  # Asegúrate de tener este archivo en tu proyecto
   
+      - name: Set up SSH    #Funciona
+        uses: webfactory/ssh-agent@v0.5.3   #Funciona
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_REVERSE_PUTTY }}  #Funciona
+            
       - name: Configurar SSH
         run: |
           mkdir -p ~/.ssh
@@ -29,9 +39,9 @@ jobs:
       #  run: | 
       #    scp -r ./* ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }}:${{ secrets.DEPLOY_PATH_REVERSE }}
 
-      - name: Install dependencies
-        run: | 
-          ssh ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }} 'cd ${{ secrets.DEPLOY_PATH_REVERSE }} && pip install -r requirements.txt'
+      #- name: Install dependencies
+      #  run: | 
+      #    ssh ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }} 'cd ${{ secrets.DEPLOY_PATH_REVERSE }} && pip install -r requirements.txt'
 
       - name: Echo hello world
         run: echo "Hello world! done to copy files"
