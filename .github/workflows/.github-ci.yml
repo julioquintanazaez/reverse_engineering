@@ -33,6 +33,12 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }} "echo 'SSH connection successful!'"
       
+      - name: Install dependencies
+        run: |
+            python -m venv venv  # Crear un entorno virtual
+            source venv/bin/activate  # Activar el entorno virtual
+            pip install -r requirements.txt  # Instalar dependencias desde requirements.txt
+
       - name: Copy files to server
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY_REVERSE_PUTTY }}
@@ -46,9 +52,9 @@ jobs:
           scp -i private_key -r ./* ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }}:${{ secrets.DEPLOY_PATH_REVERSE }}
 
 
-      - name: Install dependencies
-        run: | 
-          ssh ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }} 'cd ${{ secrets.DEPLOY_PATH_REVERSE }} && pip install -r requirements.txt'
+      #- name: Install dependencies
+      #  run: | 
+      #    ssh ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }} 'cd ${{ secrets.DEPLOY_PATH_REVERSE }} && pip install -r requirements.txt'
 
       - name: Echo hello world
         run: echo "${{ secrets.DEPLOY_PATH_REVERSE }}"
