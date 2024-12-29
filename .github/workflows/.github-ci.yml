@@ -31,11 +31,6 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }} "echo 'SSH connection successful!'"
       
-      - name: Change permissions on server
-        run: 
-        env:
-            SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY_REVERSE_PUTTY }}
-
       - name: Set permissions on server
         run: |
           ssh -i ${{ secrets.SSH_PRIVATE_KEY_REVERSE_PUTTY }} ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }} "sudo chown -R ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }} ${{ secrets.DEPLOY_PATH_REVERSE }} && sudo chmod -R 755 ${{ secrets.DEPLOY_PATH_REVERSE }}"
