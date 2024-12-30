@@ -33,7 +33,6 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }} "echo 'SSH connection successful!'"
       
-      
       - name: Copy files to server
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY_REVERSE_PUTTY }}
@@ -60,19 +59,20 @@ jobs:
             source venv/bin/activate  # Activar el entorno virtual
             pip install -r requirements.txt  # Instalar dependencias desde requirements.txt
             scp -i private_key -r ./venv ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }}:${{ secrets.DEPLOY_PATH_REVERSE }}
-
-    
      
-      #- name: Run Django server on remote server
-      #  env:
-      #      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY_REVERSE_PUTTY }}  # Clave privada
-      #      SERVER_USER: ${{ secrets.SERVER_USER_REVERSE }}  # Usuario del servidor
-      #      SERVER_IP: ${{ secrets.SERVER_IP_REVERSE }}  # IP del servidor
-      #  run: |
-      #      echo "$SSH_PRIVATE_KEY" > private_key  # Guardar la clave privada en un archivo
-      #      chmod 600 private_key  # Cambiar permisos de la clave
-      #      ssh -i private_key ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }} 'source ${{ secrets.DEPLOY_PATH_REVERSE }}/venv/bin/activate 
-
+      - name: Run Django server on remote server
+        env:
+            SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY_REVERSE_PUTTY }}  # Clave privada
+            SERVER_USER: ${{ secrets.SERVER_USER_REVERSE }}  # Usuario del servidor
+            SERVER_IP: ${{ secrets.SERVER_IP_REVERSE }}  # IP del servidor
+        run: |
+            echo "$SSH_PRIVATE_KEY" > private_key  # Guardar la clave privada en un archivo
+            chmod 600 private_key  # Cambiar permisos de la clave
+            ssh -i private_key ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }} 'source ${{ secrets.DEPLOY_PATH_REVERSE }}/venv/bin/activate;
+            python manage.py migrate; 
+            python manage.py collectstatic --noinput; 
+            # Iniciar el servidor o cualquier otro comando necesario
+            # python3 manage.py runserver 0.0.0.0:8000  
      
       - name: Echo hello world
         run: echo "${{ secrets.DEPLOY_PATH_REVERSE }}"
