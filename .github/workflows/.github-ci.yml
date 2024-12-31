@@ -65,7 +65,7 @@ jobs:
               python manage.py makemigrations  
               python manage.py migrate
               #python manage.py collectstatic --noinput
-              python manage.py runserver 0.0.0.0:5000  # Usa el ejecutable del entorno virtual
+              python manage.py runserver 0.0.0.0:8111  # Usa el ejecutable del entorno virtual
           EOF
 
          
