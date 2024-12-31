@@ -48,7 +48,7 @@ jobs:
           scp -i private_key -r ./* ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }}:${{ secrets.DEPLOY_PATH_REVERSE }}
   
       
-      - name: Run Django server on remote server
+      - name: Setup Django server on remote server
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY_REVERSE_PUTTY }}
           SERVER_USER: ${{ secrets.SERVER_USER_REVERSE }}
@@ -65,12 +65,29 @@ jobs:
               python manage.py makemigrations  
               python manage.py migrate
               #python manage.py collectstatic --noinput
-              python manage.py runserver 0.0.0.0:8111 --noreload --insecure  # Usa el ejecutable del entorno virtual
-              #gunicorn --bind 0.0.0.0:8111 myproject.wsgi:application --workers 3 --timeout 30
+              #python manage.py runserver 0.0.0.0:8111 --noreload --insecure  # Usa el ejecutable del entorno virtual
+              #gunicorn --bind 0.0.0.0:8111 reverse_engineering.wsgi:application --workers 3 --timeout 30
           EOF
 
-         
-     
+      - name: Run Server 
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY_REVERSE_PUTTY }}
+          SERVER_USER: ${{ secrets.SERVER_USER_REVERSE }}
+          SERVER_IP: ${{ secrets.SERVER_IP_REVERSE }}
+        run: |
+          echo "$SSH_PRIVATE_KEY" > private_key
+          chmod 600 private_key
+          ssh -o ServerAliveInterval=60 -i private_key ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }} << 'EOF'
+              which python3 || { echo "Python no está instalado"; exit 1; }
+              python3 -m venv venv  # Crear un entorno virtual
+              source ${{ secrets.DEPLOY_PATH_REVERSE }}/venv/bin/activate || { echo "No se pudo activar el entorno virtual"; exit 1; }
+              cd ${{ secrets.DEPLOY_PATH_REVERSE }}   
+              nohup python manage.py runserver 0.0.0.0:8111 &
+              #gunicorn --bind 0.0.0.0:8111 reverse_engineering.wsgi:application --workers 3 --timeout 30
+          EOF
+    
+          
+      
       
   
 
