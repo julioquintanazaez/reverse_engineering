@@ -9,7 +9,7 @@ db.sqlite
 db.sqlite-journal
 
 # Environments
-.env
+#.env
 .venv
 env/
 venv/
