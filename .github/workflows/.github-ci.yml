@@ -64,10 +64,10 @@ jobs:
               # Instalar dependencias desde requirements.txt
               pip install -r ${{ secrets.DEPLOY_PATH_REVERSE }}/requirements.txt  
               cd ${{ secrets.SSH_PRIVATE_KEY_REVERSE }}     
-              scp -i private_key -r ./venv ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }}:${{ secrets.DEPLOY_PATH_REVERSE }}
-              python manage.py migrate
-              python manage.py collectstatic --noinput
-              python manage.py runserver 0.0.0.0:5000
+              #scp -i private_key -r ./venv ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }}:${{ secrets.DEPLOY_PATH_REVERSE }}
+              #python manage.py migrate
+              #python manage.py collectstatic --noinput
+              #python manage.py runserver 0.0.0.0:5000
           EOF
      
       
