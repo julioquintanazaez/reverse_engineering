@@ -82,8 +82,8 @@ jobs:
               python3 -m venv venv  # Crear un entorno virtual
               source ${{ secrets.DEPLOY_PATH_REVERSE }}/venv/bin/activate || { echo "No se pudo activar el entorno virtual"; exit 1; }
               cd ${{ secrets.DEPLOY_PATH_REVERSE }}   
-              #python manage.py runserver 0.0.0.0:8005 &
-              sudo systemctl status reverse_engineering.service
+              python manage.py runserver 0.0.0.0:8005 &
+              sudo systemctl restart reverse_engineering_gunicorn.service
               #nohup python manage.py runserver 0.0.0.0:7611 &
               #gunicorn --bind 0.0.0.0:7611 reverse_engineering.wsgi:application --workers 3 --timeout 30
           EOF
