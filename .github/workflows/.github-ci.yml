@@ -80,7 +80,7 @@ jobs:
               source ${{ secrets.DEPLOY_PATH_REVERSE }}/venv/bin/activate || { echo "No se pudo activar el entorno virtual"; exit 1; }
               cd ${{ secrets.DEPLOY_PATH_REVERSE }}   
               python manage.py runserver 0.0.0.0:1500 &  #0.0.0.0:18005  / 98.85.52.74:20800
-              gunicorn --bind 0.0.0.0:1500 reverse_engineering.wsgi:application --workers 3 --timeout 30 #--bind 0.0.0.0:18005
+              gunicorn --bind  0.0.0.0:1500 reverse_engineering.wsgi:application --workers 3 --timeout 30 #--bind 0.0.0.0:18005
           EOF
     
           
