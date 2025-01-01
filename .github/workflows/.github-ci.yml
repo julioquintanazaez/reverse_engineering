@@ -64,7 +64,8 @@ jobs:
               cd ${{ secrets.DEPLOY_PATH_REVERSE }}   
               python manage.py makemigrations  
               python manage.py migrate
-              sudo systemctl restart reverse_engineering.service; #Sin esto funciona pero hay que matar el servicio por consola
+              sudo systemctl restart reverse_engineering.service #Sin esto funciona pero hay que matar el servicio por consola
+              exec \$SHELL --login
           EOF
 
       - name: Run Server 
