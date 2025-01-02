@@ -19,6 +19,7 @@ from django.urls import path, include
 from rest_framework import permissions  
 from drf_yasg.views import get_schema_view  
 from drf_yasg import openapi
+from reverse_api.views.homeview import HomeView
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -36,6 +37,7 @@ schema_view = get_schema_view(
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('reverse_api/', include('reverse_api.urls')),
+    path('', HomeView.as_view(), name='home'),    
 ]
 
 
