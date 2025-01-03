@@ -67,17 +67,8 @@ jobs:
           EOF
 
       - name: Setup Django server on remote server
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY_REVERSE_PUTTY }}
-          SERVER_USER: ${{ secrets.SERVER_USER_REVERSE }}
-          SERVER_IP: ${{ secrets.SERVER_IP_REVERSE }}
         run: |
-          echo "$SSH_PRIVATE_KEY" > private_key
-          chmod 600 private_key
-          ssh -i private_key ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }};
-          cd ${{ secrets.DEPLOY_PATH_REVERSE }}
-          sudo systemctl restart apireverseengeneering 
-          exec \$SHELL --login"
+          sudo systemctl restart apireverseengeneering.service          
 
 
               
