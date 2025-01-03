@@ -2,7 +2,6 @@ from django.urls import include, path
 from rest_framework import routers
 from .views.exceluploadview import ExcelUploadView
 
-from .views.homeview import HomeView
 from .views.genesview import GenesListView, GenesAllelesListView
 from .views.allelesview import AllelesListView
 from .views.allelescombinationsviews import AllelesCombinationsByIDListView, AllelesCombinationsAllListView
