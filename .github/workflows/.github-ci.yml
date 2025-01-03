@@ -75,7 +75,8 @@ jobs:
           echo "$SSH_PRIVATE_KEY" > private_key
           chmod 600 private_key
           ssh -i private_key ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }};
-          sudo systemctl restart apireverseengeneering.service; 
+          cd ${{ secrets.DEPLOY_PATH_REVERSE }}
+          sudo systemctl restart apireverseengeneering 
           exec \$SHELL --login"
 
 
