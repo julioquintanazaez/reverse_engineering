@@ -66,8 +66,14 @@ jobs:
               python manage.py migrate
           EOF
 
-      - name: Setup Django server on remote server
-        run: sudo systemctl restart apireverseengeneering.service          
+      - name: Restart service
+        run: |
+            ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }} << 'EOF'
+              cd ${{ secrets.DEPLOY_PATH_REVERSE }} || exit
+              source cd ${{ secrets.DEPLOY_PATH_REVERSE }}/venv/bin/activate || exit
+              sudo systemctl restart reverse_engineering_gunicorn.service
+            EOF
+         
 
 
               
