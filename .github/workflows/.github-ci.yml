@@ -67,8 +67,7 @@ jobs:
           EOF
 
       - name: Setup Django server on remote server
-        run: |
-          sudo systemctl restart apireverseengeneering.service          
+        run: sudo systemctl restart apireverseengeneering.service          
 
 
               
