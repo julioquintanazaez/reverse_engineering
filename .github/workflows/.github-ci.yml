@@ -69,8 +69,7 @@ jobs:
       - name: Restart service
         run: |
             ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER_REVERSE }}@${{ secrets.SERVER_IP_REVERSE }} << 'EOF'
-              cd ${{ secrets.DEPLOY_PATH_REVERSE }} || exit
-              source cd ${{ secrets.DEPLOY_PATH_REVERSE }}/venv/bin/activate || exit
+              #cd ${{ secrets.DEPLOY_PATH_REVERSE }} || exit
               sudo systemctl restart  apireverseengeneering.service
             EOF
          
