@@ -32,3 +32,13 @@ class HandleFormulaUtils():
         #Return the index of ocurrence of allele genotype
         formula = formula.split("$")
         return formula
+    
+    def filter_lower_case_formula(self, formula):  # Find a regular expression to remove from the formula the lowercase parts
+        res = []
+        const_char = "abcdefghijklmnñopqrstuvwxyz"
+        for item in formula:
+            flagwords = [''.join(r) for r in item if r in const_char]  # Unir las partes capturadas
+            if flagwords == []:
+                res.append(item)
+        
+        return res

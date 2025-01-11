@@ -57,63 +57,7 @@ class ExcelFileParseUtils():
         #print(columns_index)
         return columns_index
         
-    def readGenesChuncks(self, file):
-        #print(f' The file name is: {file}')      
-        wb = openpyxl.load_workbook(file)
-        sheet = wb.active        
-        #print(wb.sheetnames)
-        #Como seleccionar una Sheet specifica en openpyxl
-        genes_list = []
-        geneIn = False
-        genbody = 0
-        tempGene = None
-        gene_columns = []
-        for row in sheet.iter_rows(min_row=1, values_only=True):
-            if row[0] != None:
-                if row[0].startswith("Gene"):
-                    geneIn = True
-                    tempGene = None
-                    gene_columns = self.set_up_gene_columns_indexes(row)
-                elif geneIn:
-                    if row[0] not in genes_list: 
-                        if len(genes_list) > 0:
-                            #print(f"Gene {genes_list[len(genes_list)-1]} contains: {genbody} SNPs") 
-                            genbody = 0 #Restarting the count of the gene body
-                        genes_list.append(row[0])  
-                        genbody = genbody + 1
-                        #print(f"New gene {row[0]}") 
-                        gene, created = Genes.objects.get_or_create(name=row[0])   
-                        _, _ = Alleles.objects.get_or_create(
-                                protein_change= "",#row[gene_columns["Protein change"]],
-                                nucleotide_change = "",#row[gene_columns["Nucleotide change"]],
-                                allele = row[gene_columns["Allele"]],
-                                marker = row[gene_columns["Marker"]],
-                                genotype = row[gene_columns["Genotype"]],
-                                formula = row[gene_columns["Formula"]],
-                                snp = genbody,
-                                gene=gene
-                            )                     
-                        tempGene = gene                                               
-                    else:
-                        genbody = genbody + 1
-                        #print(f"Body of gene {row[0]}")  
-                        _, _ = Alleles.objects.get_or_create(
-                                protein_change = row[gene_columns["Protein change"]],
-                                nucleotide_change = row[gene_columns["Nucleotide change"]],
-                                allele = row[gene_columns["Allele"]],
-                                marker = row[gene_columns["Marker"]],
-                                genotype = row[gene_columns["Genotype"]],
-                                formula = row[gene_columns["Formula"]],
-                                snp = genbody,
-                                gene=tempGene
-                            )                         
-                else:    
-                    pass
-            else:
-                geneIn = False
-
-        #print(genes_list)
-
+           
     def readDataFile(self, file):
         hac = Handle_Alleles_Combinations() # Handle Alleles Combinations
         #print(f' The file name is: {file}')      
@@ -154,7 +98,7 @@ class ExcelFileParseUtils():
                             allele = row[gene_columns["Allele"]],
                             marker = row[gene_columns["Marker"]],
                             genotype = row[gene_columns["Genotype"]],
-                            formula = row[gene_columns["Formula"]],
+                            formula = row[gene_columns["Formula"]],  # revisar formato de la formula para eliminar letras minúsculas
                             snp = genbody,
                             gene=gene
                         )  

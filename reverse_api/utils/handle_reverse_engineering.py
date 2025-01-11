@@ -59,7 +59,9 @@ class Handle_Reverse_Engineering():
                         for item in marker_serializer.data:
                             formula_ = "None"
                             try:                                
-                                formula_ = h_fromula.proccess_entry_formula(item["formula"], freq_value)
+                                formula_ = h_fromula.filter_lower_case_formula(
+                                    h_fromula.proccess_entry_formula(item["formula"], freq_value)
+                                )
                                 f_value_ = freq_value
                             except:
                                 print(f"Unknow formula for gene {gen_name} and marker {key_marker}")
