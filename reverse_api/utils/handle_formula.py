@@ -42,3 +42,9 @@ class HandleFormulaUtils():
                 res.append(item)
         
         return res
+    
+    def set_frequece_for_not_contrib(self, freq):
+        update_freq = []
+        for item in freq:
+            update_freq.append((item[0], 0))
+        return dict(update_freq).items()

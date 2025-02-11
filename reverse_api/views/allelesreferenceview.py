@@ -1,26 +1,15 @@
-from collections import Counter
 from django.shortcuts import render
 from rest_framework import status  
 from rest_framework.response import Response  
 
 from rest_framework.views import APIView
 from rest_framework.generics import GenericAPIView
-from rest_framework import parsers, renderers
 
-from ..serializers.allelesserializer import AllelesSerializer
 from ..serializers.allelesreferenceserializer import AllelesReferenceSerializer
-from ..serializers.geneserializer import GenesSerializer
 from ..models.allelesreference import Alleles_Reference
-from ..models.alleles import Alleles
-from ..models.genes import Genes
 
 from ..serializers.genesallelesreferenceerializer import GenesAllelesReferenceSerializer
 
-
-from drf_yasg.utils import swagger_auto_schema  
-from drf_yasg import openapi  
-
-from ..utils.handle_formula import HandleFormulaUtils
 from ..utils.handle_reverse_engineering import Handle_Reverse_Engineering
 
 # Create your views here.

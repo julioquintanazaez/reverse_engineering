@@ -4,7 +4,7 @@ import openpyxl
 from ..models.genes import Genes
 from ..models.alleles import Alleles
 from ..models.allelesreference import Alleles_Reference
-from ..utils.hendle_combinations import Handle_Alleles_Combinations
+from .handle_combinations import Handle_Alleles_Combinations
 
 class ExcelFileParseUtils(): 
 
@@ -76,7 +76,7 @@ class ExcelFileParseUtils():
         hac.fill_Alleles_Combinations()
         print("Read Alleles combinations done......")     
         
-
+    # Esta función lee de la sheet Genes en la cual *1 no está para casí nungún gen 
     def read_Genes_And_Alleles(self, sheet):
         genbody = 0
         gene_columns = []
@@ -102,7 +102,8 @@ class ExcelFileParseUtils():
                             snp = genbody,
                             gene=gene
                         )  
-                    
+
+    # Esta función lee de la sheet AlleleReference en la cual *1 si está para todos los genes   
     def read_Genes_References(self, sheet):
         gene_ref_columns = []
         for row in sheet.iter_rows(min_row=1, values_only=True):

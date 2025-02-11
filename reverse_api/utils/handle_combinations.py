@@ -1,7 +1,8 @@
 from ..models.genes import Genes
 from ..models.allelescombinations import Alleles_Combinations
 
-from itertools import combinations
+from itertools import combinations 
+from itertools import product
 
 
 class Handle_Alleles_Combinations(): 
@@ -18,8 +19,9 @@ class Handle_Alleles_Combinations():
             gene_ref = gen.gene_ref.all()
             # Guardar los nombres de los alleles para calcular sus combinaciones
             aleles_names = [allele.allele_ref for allele in gene_ref]
-           # Generar todas las combinaciones por pares sin repeticiones
-            combinations_alleles_by_pairs = list(combinations(aleles_names, 2))
+            # Generar todas las combinaciones por pares sin repeticiones
+            #combinations_alleles_by_pairs = list(combinations(aleles_names, 2))
+            combinations_alleles_by_pairs = [(a, b) for a in aleles_names for b in aleles_names] #list(combinations(aleles_names, 2))
             # Mostrar resultados
             for combinacion in combinations_alleles_by_pairs:
                 # Adicionar en la base de datos de combinaciones
