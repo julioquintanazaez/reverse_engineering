@@ -6,20 +6,17 @@ from ..models.alleles import Alleles
 from ..models.allelesreference import Alleles_Reference
 from .handle_combinations import Handle_Alleles_Combinations
 
-class ExcelFileParseUtils(): 
+from ..excel_features.features import load_gene_features, load_alleles_features
 
+
+class ExcelFileParseUtils(): 
+    
     def __inint__(self):
         """
         Constructor. Called in the URLconf; can contain helpful extra
         keyword arguments, and other things.
         """        
-        self._GENE_COLUMN = "Gene"
-        self._GENE_PROTEIN_CHAIN = "Protein change"
-        self._GENE_NUCLEOTIDE_CHAIN = "Nucleotide change"
-        self._GENE_ALLELE = "Allele"
-        self._GENE_MARKER = "Marker"
-        self._GENE_GENOTYPE = "Genotype"
-        self._GENE_FORMULA = "Formula"
+        
 
     def set_up_gene_columns_indexes(self, row):
         columns_index = {}
@@ -56,7 +53,6 @@ class ExcelFileParseUtils():
                 pass
         #print(columns_index)
         return columns_index
-        
            
     def readDataFile(self, file):
         hac = Handle_Alleles_Combinations() # Handle Alleles Combinations
@@ -118,10 +114,134 @@ class ExcelFileParseUtils():
                             allele_ref = row[gene_ref_columns["Allele"]],
                             gene=gene
                         )  
-                    
+
+    # Nuevo from META
+    #         
+    def readDataFileFromMETA(self, file):
+        hac = Handle_Alleles_Combinations() # Handle Alleles Combinations
+        #print(f' The file name is: {file}')      
+        wb = openpyxl.load_workbook(file, data_only=True)
+        #print(wb.sheetnames) 
+        # sheet = wb.active  
+        snps_wsh = wb['Genes']  
+        print("Read Genes and Alleles..")
+        self.read_Genes_And_Alleles_From_META(snps_wsh)
+        print("Read Alleles references..")
+        self.read_Alleles_Reference_From_META(snps_wsh)
+        print("Read files done...")
+
+    def cell_row_formula(self, row, input):
+        index = (int)(input)
+        temp = f"@{row[index]}|{row[index+1]}|{row[index+2]}|{row[index+3]}|{row[index+4]}"  
+        return temp
     
-                          
-                    
+    def set_up_formula(self, row, gene_desc):
+        formula = self.cell_row_formula(row, gene_desc["Formula_0"])
+        formula = formula + self.cell_row_formula(row, gene_desc["Formula_1"])
+        formula = formula + self.cell_row_formula(row, gene_desc["Formula_2"])
+        formula = formula + self.cell_row_formula(row, gene_desc["Formula_3"])  
+        return formula
+    
+    def extended_cell_row_formula(self, row, begin, end):
+        begin = (int)(begin)
+        end = (int)(end)
+        temp = f"@{row[begin]}"
+        for i in range(begin+1, end+1):
+            temp = f"{temp}|{row[i]}"
+        return temp
+    
+    def get_begin_end(self, desc_being_end):
+        begin = (int)(desc_being_end[0])
+        end = (int)(desc_being_end[1])
+        return begin, end
+    
+    def set_up_formula_extended(self, row, gene_desc):
+        begin, end = self.get_begin_end(gene_desc["Formula_0"])
+        formula = self.extended_cell_row_formula(row, begin, end)
+        begin, end = self.get_begin_end(gene_desc["Formula_1"])
+        formula = formula + self.extended_cell_row_formula(row, begin, end)
+        begin, end = self.get_begin_end(gene_desc["Formula_2"])
+        formula = formula + self.extended_cell_row_formula(row, begin, end)
+        begin, end = self.get_begin_end(gene_desc["Formula_3"])
+        formula = formula + self.extended_cell_row_formula(row, begin, end) 
+        begin, end = self.get_begin_end(gene_desc["Formula_a"])
+        formula = formula + self.extended_cell_row_formula(row, begin, end)  
+        return formula
+        
+    def read_Genes_And_Alleles_From_META(self, sheet):
+        for index, row in enumerate(sheet.iter_rows(values_only=True), start=1):
+            if row[0] != None:
+                if row[0].startswith("Gene"):                     
+                    gene_name, _ = self.extract_gene_body(index+1, sheet)
+
+    def read_Alleles_Reference_From_META(self, sheet):
+        for index, row in enumerate(sheet.iter_rows(values_only=True), start=1):
+            if row[0] != None and row[1] == None and row[2] == None and row[3] == None and row[4] == None:
+                gene_name = row[0]
+                #print(gene_name)
+                self.extract_alleles_body(index+1, sheet, gene_name)
+             
+    def extract_gene_body(self, index, sheet):
+        gene_desc = load_gene_features()
+        genbody = 0
+        gene_name = ""
+        gene_protein = ""
+        gene_chain = ""
+        gene_marker = ""
+        temp_name = ""
+        temp_protein = ""
+        temp_chain = ""
+        temp_marker = ""
+        for row in sheet.iter_rows(min_row=index, values_only=True):
+            if row[gene_desc["Gene"]] == None and row[gene_desc["Allele"]] == None and row[gene_desc["Marker"]] == None:
+                break    
+            gene_name = row[gene_desc["Gene"]]  
+            gene_protein = row[gene_desc["Protein change"]]  
+            gene_chain = row[gene_desc["Genotype"]]  
+            gene_marker = row[gene_desc["Marker"]]       
+            if(row[gene_desc["Gene"]] != None and row[gene_desc["Marker"]] != None):
+                #print("Copy to temp")
+                temp_name = gene_name
+                temp_protein = gene_protein
+                temp_chain = gene_chain
+                temp_marker = gene_marker
+            else:
+                #print("Update empty value")
+                gene_name = temp_name
+                gene_protein = temp_protein
+                gene_chain = temp_chain  
+                gene_marker = temp_marker
+
+            genbody = genbody + 1  
+            gene, _ = Genes.objects.get_or_create(name=gene_name) 
+            _, _ = Alleles.objects.get_or_create(
+                    protein_change = gene_protein,
+                    nucleotide_change = gene_chain,
+                    allele = row[gene_desc["Allele"]],
+                    marker = temp_marker,
+                    genotype = row[gene_desc["Genotype"]],
+                    formula = self.set_up_formula_extended(row, gene_desc),  
+                    snp = genbody,
+                    gene=gene
+                )  
+            #print(f"{gene_name} > {rs} > {gene_protein} > {gene_chain} > {al}")
+        return gene_name, genbody
+
+    def extract_alleles_body(self, index, sheet, gene_name):
+        alleles_desc = load_alleles_features()
+        for row in sheet.iter_rows(min_row=index, values_only=True):
+            if row[0] == None:
+                break
+            gene, created = Genes.objects.get_or_create(name=gene_name) #Creo un gen nuevo   
+            _, _ = Alleles_Reference.objects.get_or_create(
+                    dbsnp = row[alleles_desc["dbSNP"]],
+                    allele_ref = row[alleles_desc["allele"]],
+                    gene=gene
+                )  
+            #a = alleles_desc["allele"]
+            #s = alleles_desc["dbSNP"]
+            #print(f"Gene name: {gene_name} con allele: {row[a]} y SNP: {row[s]}")
+        
 
    
 

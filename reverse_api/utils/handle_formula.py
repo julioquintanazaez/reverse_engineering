@@ -48,3 +48,12 @@ class HandleFormulaUtils():
         for item in freq:
             update_freq.append((item[0], 0))
         return dict(update_freq).items()
+    
+    #@C/C|None|None|None|None@C|None|None|None|None@C/G|g|g|G|None@None|None|None|None|None
+    def proccess_formula(self, formula, frec):
+        formula_list = formula.split("@")
+        formula_list = formula_list[frec+1].split("|")
+        formula_list = [x for x in formula_list if x != "None"]
+        return formula_list
+    
+    

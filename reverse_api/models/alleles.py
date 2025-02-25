@@ -7,9 +7,9 @@ from .genes import Genes
 class Alleles(models.Model):
     protein_change = models.TextField(max_length=25,  blank=True, null=True)
     nucleotide_change = models.TextField(max_length=25,  blank=True, null=True)
-    allele = models.TextField(max_length=25, blank=False)
+    allele = models.TextField(max_length=25, blank=True, null=True)
     marker = models.TextField(max_length=25, blank=False)
-    genotype = models.TextField(max_length=25, blank=False)    
+    genotype = models.TextField(max_length=25, blank=True, null=True)    
     formula = models.TextField(max_length=100, blank=False)
     snp = models.IntegerField(blank=False)
 

@@ -31,8 +31,8 @@ class AllelesPairSerializer(serializers.Serializer):
         if len(aapair) != 2 or not all(part for part in aapair):
             raise serializers.ValidationError("La combinación de alelos debe seguir el formato '*x/*y'.")
     
-        if not Alleles_Combinations.objects.filter(gene=gene, allele_combinations=alleles_pair).exists():
-            raise serializers.ValidationError(f"This combination '{alleles_pair}' does not belongs to gen '{gen_name}' or does not exist in DB.")
+        #if not Alleles_Combinations.objects.filter(gene=gene, allele_combinations=alleles_pair).exists():
+        #    raise serializers.ValidationError(f"This combination '{alleles_pair}' does not belongs to gen '{gen_name}' or does not exist in DB.")
 
         if not Alleles_Reference.objects.filter(gene=gene, allele_ref=aapair[0]).exists():
             raise serializers.ValidationError(f"Allele {aapair[0]} does not exist for {gen_name}")

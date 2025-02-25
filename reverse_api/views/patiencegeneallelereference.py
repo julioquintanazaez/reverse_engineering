@@ -21,7 +21,6 @@ class GetPatienceReverseEngineeringView(GenericAPIView):
     def post(self, request):
         hr = Handle_Reverse_Engineering() 
         serializer = ListPatienceGenesAllelesReferenceSerializer(data=request.data)
-
         
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
@@ -30,7 +29,6 @@ class GetPatienceReverseEngineeringView(GenericAPIView):
             data = serializer.data["patience_list"]
             for item in data:
                 patience = item["patience"]
-            
                 patience_genes = hr.get_patience_reverse_engineering(item)
                 patience_list.append({
                             "patience" : patience,

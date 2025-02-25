@@ -112,7 +112,7 @@ class Handle_Reverse_Engineering():
             alleles_pair = gen_item["alleles_pair"] # Extraigo el par de alleles
             alleles_combinations = []
             alleles = alleles_pair.split("/")
-            info_snp = self.processes_alleles_pair(gen_id, alleles)
+            info_snp = self.processes_alleles_pair_extend(gen_id, alleles)
             alleles_combinations.append({
                                         "name" : alleles_pair,
                                         "snps" : info_snp
@@ -123,47 +123,121 @@ class Handle_Reverse_Engineering():
                         }) 
         return genes_list
 
-    def processes_alleles_pair(self, gen_id, alleles_pair):   
-        snps = []     
+    def get_alleles_reference_data(self, gen_id, alleles_pair):
         a1_ref = Alleles_Reference.objects.filter(gene=gen_id, allele_ref=alleles_pair[0])
         a1_ref_serializer = AllelesReferenceSerializer(a1_ref, many=True)
         a1_ref_dbsnp = a1_ref_serializer.data[0]["dbsnp"]
         a2_ref = Alleles_Reference.objects.filter(gene=gen_id, allele_ref=alleles_pair[1])
         a2_ref_serializer = AllelesReferenceSerializer(a2_ref, many=True)
         a2_ref_dbsnp = a2_ref_serializer.data[0]["dbsnp"]
-        dbsnp_cum = a1_ref_dbsnp + "+" + a2_ref_dbsnp  
+        return a1_ref_dbsnp + "+" + a2_ref_dbsnp 
+
+    # Puede que en la consulta al modelo ya pueda extraer los valores
+    def extract_alleles_names_from_marker(self, dict_from_marker):
+        res = []
+        for item in dict_from_marker:
+            res.append(item['allele'])
+        return res
+
+    def check_alleles_pair_from_marker(self, pair, data_from_marker):
+        first = pair[0] in data_from_marker
+        second = pair[1] in data_from_marker
+        return first and second
+    
+    def get_alleles_dict(self, gen_id):
+        temp_alleles = []
+        query = Alleles.objects.filter(gene=gen_id)
+        serialized_query = AllelesSerializer(query, many=True)
+        for item in serialized_query.data:
+            temp_alleles.append({
+                "allele": item["allele"],
+                "marker": item["marker"],
+                "formula": item["formula"],
+                "freq": 0,
+            })
+        return temp_alleles
+    
+    def check_contribution(self, alleles_list, snp_dict, pair_alleles):
+        snp_keys = list(snp_dict.keys())
+        print(snp_dict)
+        for item in alleles_list:
+            alleles_in = Alleles.objects.filter(marker=item["marker"]) 
+            alleles_in_serializer = AllelesSerializer(alleles_in, many=True)
+            alleles_from_marker = self.extract_alleles_names_from_marker(alleles_in_serializer.data)
+            allele = item["allele"]
+            marker = item["marker"]
+            # Si alleles from marker es mayor que uno quiere decir que el marcador contribuye a dos 
+            # alleles o sea dos alleles tiene similar marcador
+            if (marker in snp_keys):
+                if len(alleles_from_marker) > 1 and (allele in pair_alleles) and (pair_alleles[0] != pair_alleles[1]): 
+                    item["formula"] = self.h_fromula.proccess_formula(item["formula"], 4)
+                    print(f"formula extendida para alleles {allele} snp {marker}")
+                else:
+                    freq_value = snp_dict[marker]
+                    item["formula"] = self.h_fromula.proccess_formula(item["formula"], freq_value)
+                    print(f"formula normal para alleles {allele} snp {marker} con frecuencia {freq_value}")
+            else:
+                freq_value = item["freq"]
+                item["formula"] = self.h_fromula.proccess_formula(item["formula"], freq_value)
+                print(f"formula en cero para alleles {allele} snp {marker} con frecuencia {freq_value}")
+        return alleles_list
+
+    def processes_alleles_pair_extend(self, gen_id, alleles_pair):   
+        snps = []     
+        dbsnp_cum = self.get_alleles_reference_data(gen_id, alleles_pair)          
+        freq_rs = Counter(dbsnp_cum.split("+"))#.items() # Aquí tengo los que contribuyen {"rs1": 1, "rs2": 2}
+        alleles_list = self.get_alleles_dict(gen_id)
+        snps = self.check_contribution(alleles_list, freq_rs, alleles_pair)
+        return snps
+
+    def processes_alleles_pair(self, gen_id, alleles_pair):   
+        snps = []     
+        dbsnp_cum = self.get_alleles_reference_data(gen_id, alleles_pair)          
         freq_rs = Counter(dbsnp_cum.split("+")).items() # Aquí tengo los que contribuyen {"rs1": 1, "rs2": 2}
         freq_rs_not = Counter(get_genes_rs_not_contribution_by_alleles_pair(gen_id, freq_rs)).items() #{"rs3": 0, "rs4": 0}
         freq_rs_not = self.h_fromula.set_frequece_for_not_contrib(freq_rs_not)
         freq_rs_all = dict(list(freq_rs) + list(freq_rs_not)) 
         for key_marker, freq_value in freq_rs_all.items():
-            marker_exist = Alleles.objects.filter(marker=key_marker) 
-            if marker_exist != None: # Existe nen la base de datos
-                marker_serializer = AllelesSerializer(marker_exist, many=True)
+            marker_alleles = Alleles.objects.filter(marker=key_marker) 
+            if marker_alleles != None:
+                marker_serializer = AllelesSerializer(marker_alleles, many=True)
+                alleles_from_marker = self.extract_alleles_names_from_marker(marker_serializer.data)
+                iqual_alleles = (alleles_pair[0] == alleles_pair[1])
+                alleles_in_snp = self.check_alleles_pair_from_marker(alleles_pair, alleles_from_marker)
                 for item in marker_serializer.data:
                     formula_ = "None"      
-                    try:    
-                        formula_ = self.h_fromula.filter_lower_case_formula(
-                            self.h_fromula.proccess_entry_formula(item["formula"], freq_value)
-                        )
-                        f_value_ = freq_value
-                        snps.append({
-                            "snpname": item["marker"],
-                            "formula": formula_,
-                            "f_value": f_value_
-                        })
+                    try: 
+                        if alleles_in_snp and not iqual_alleles:
+                            formula_ = self.h_fromula.proccess_formula(item["formula"], 4)
+                            snps.append({
+                                "allele": item["allele"],
+                                "snpname": item["marker"],
+                                "formula": formula_,
+                                "f_value": 4
+                            })
+                        else:
+                            formula_ = self.h_fromula.proccess_formula(item["formula"], freq_value)
+                            f_value_ = freq_value
+                            snps.append({
+                                "allele": item["allele"],
+                                "snpname": item["marker"],
+                                "formula": formula_,
+                                "f_value": f_value_
+                            })
                     except:
                         print(f"Unknow formula for gene {gen_id} and marker {key_marker}")
                         formula_ = f"Unknow formula for gene and marker {key_marker}"
                         f_value_ = 0    
                         #SNPs contiene lista de diccionarios de SNPname, Formula y Freq                        
                         snps.append({
+                                    "allele": item["allele"],
                                     "snpname": item["marker"],
                                     "formula": formula_,
                                     "f_value": -1
                                 })
             else:
                 snps.append({
+                    "allele": None,
                     "snpname": None,
                     "formula": None,
                     "f_value": -1
