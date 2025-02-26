@@ -56,4 +56,26 @@ class HandleFormulaUtils():
         formula_list = [x for x in formula_list if x != "None"]
         return formula_list
     
+    def check_formula_ambigua(self, f_formula, s_formula, frec):
+        f_formula = f_formula.split("@")
+        s_formula = s_formula.split("@")
+        f_formula_list = f_formula[frec+1].split("|")
+        s_formula_list = s_formula[frec+1].split("|")
+        for i in range(0, len(f_formula_list)):
+            if f_formula_list[i] != s_formula_list[i]:
+                return True
+        return False
+    
+    def join_formula_ambigua(self, f_formula, s_formula):
+        f_formula = f_formula.split("@")
+        s_formula = s_formula.split("@")
+        f_formula_list = f_formula[len(f_formula)-1].split("|")
+        s_formula_list = s_formula[len(s_formula)-1].split("|")
+        similar_token = []
+        for i in range(0, len(f_formula_list)):
+            if f_formula_list[i] == s_formula_list[i]:
+                similar_token.append(f_formula_list[i])
+        similar_token = [x for x in similar_token if x != "None"]
+        return similar_token
+    
     
