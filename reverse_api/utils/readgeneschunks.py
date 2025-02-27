@@ -198,7 +198,7 @@ class ExcelFileParseUtils():
             gene_name = row[gene_desc["Gene"]]  
             gene_protein = row[gene_desc["Protein change"]]  
             gene_chain = row[gene_desc["Genotype"]]  
-            gene_marker = row[gene_desc["Marker"]]       
+            gene_marker = row[gene_desc["Marker"]]             
             if(row[gene_desc["Gene"]] != None and row[gene_desc["Marker"]] != None):
                 #print("Copy to temp")
                 temp_name = gene_name
@@ -212,14 +212,17 @@ class ExcelFileParseUtils():
                 gene_chain = temp_chain  
                 gene_marker = temp_marker
 
+            allele = row[gene_desc["Allele"]]
+            genotype = row[gene_desc["Genotype"]]
+            print(f"Insertar datos con: {gene_name} {allele} {gene_marker} {gene_protein} {gene_chain} -------------")
             genbody = genbody + 1  
             gene, _ = Genes.objects.get_or_create(name=gene_name) 
             _, _ = Alleles.objects.get_or_create(
                     protein_change = gene_protein,
                     nucleotide_change = gene_chain,
-                    allele = row[gene_desc["Allele"]],
-                    marker = temp_marker,
-                    genotype = row[gene_desc["Genotype"]],
+                    allele = allele,
+                    marker = gene_marker,
+                    genotype = genotype,
                     formula = self.set_up_formula_extended(row, gene_desc),  
                     snp = genbody,
                     gene=gene

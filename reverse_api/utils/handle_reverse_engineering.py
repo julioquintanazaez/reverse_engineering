@@ -138,6 +138,13 @@ class Handle_Reverse_Engineering():
         for item in dict_from_marker:
             res.append(item['allele'])
         return res
+    
+    def extract_alleles_names_from_marker_by_pair(self, dict_from_marker, alleles_pair):
+        res = []
+        for item in dict_from_marker:
+            if item["allele"] in alleles_pair:
+                res.append(item['allele'])
+        return res
 
     def check_alleles_pair_from_marker(self, pair, data_from_marker):
         first = pair[0] in data_from_marker
@@ -199,6 +206,7 @@ class Handle_Reverse_Engineering():
             alleles_in_serializer = AllelesSerializer(alleles_in, many=True)
             for item in alleles_in_serializer.data:
                 notcont_snp.append({
+                    "allele": item["allele"],
                     "marker": item["marker"],
                     "formula": self.h_fromula.proccess_formula(item["formula"], 0),
                     "freq": 0,
@@ -210,34 +218,38 @@ class Handle_Reverse_Engineering():
         for marker in freq_rs:
             alleles_in = Alleles.objects.filter(marker=marker) 
             alleles_in_serializer = AllelesSerializer(alleles_in, many=True)
-            alleles_from_marker = self.extract_alleles_names_from_marker(alleles_in_serializer.data)
+            alleles_from_marker = self.extract_alleles_names_from_marker_by_pair(alleles_in_serializer.data, alleles_pair)
             # Si el marcador o snp contribuye para un solo allele aplicar la formula normal
             if len(alleles_from_marker) < 2:
-                # print(f"{marker} con freuencia {freq_rs[marker]}")
-                # print(f"El marcador {marker} Contribuye para un solo allele: {list(alleles_from_marker)}")
+                print(f"{marker} con freuencia {freq_rs[marker]}")
+                print(f"El marcador {marker} Contribuye para un solo allele")
                 for item_alleles in alleles_in_serializer.data:
-                    freqencia = freq_rs[marker]
-                    cont_snp.append({
-                        "marker": marker, #item_alleles["marker"],
-                        "formula": self.h_fromula.proccess_formula(item_alleles["formula"], freqencia),
-                        "freq": freqencia
-                    })
+                    if item_alleles["allele"] in alleles_pair:
+                        freqencia = freq_rs[marker]
+                        cont_snp.append({
+                            "marker": marker, #item_alleles["marker"],
+                            "formula": self.h_fromula.proccess_formula(item_alleles["formula"], freqencia),
+                            "freq": freqencia
+                        })
+                        a = item_alleles["allele"]
+                        print(f"Trabajo para un solo allele para {a} con {marker}")
             # Si el marcador o snp contribuye para más de un allele aplicar el siguiente algoritmo:
             # Si el par de elleles es el mismo, aplicar la fórmula segun frecuencia
             # Al contrario, buscar las fórmulas par de alleles introducido por el usuario
             # Comparar las formulas para el par de alleles y tomar la unión de las mismas
-            else:             
+            else:  
+                print(f"{marker} con numero de alleles {alleles_from_marker}")   
                 print(f"{marker} con freuencia {freq_rs[marker]}")   
-                print(f"El marcador {marker} Contribuye para varios alleles: {list(alleles_from_marker)}")
+                #print(f"El marcador {marker} Contribuye para varios alleles: {list(alleles_from_marker)}")
                 if alleles_pair[0] == alleles_pair[1]:
                     freqencia = freq_rs[marker]
                     print(f"Los alleles del par son iguales el procesamiento es por la frecuencia {freqencia}")
                     for item_alleles in alleles_in_serializer.data:                        
                         if item_alleles["allele"] == alleles_pair[0]:
-                            print(item_alleles["allele"])
+                            #print(item_alleles["allele"])
                             cont_snp.append({
                                 "marker": marker, #item_alleles["marker"],
-                                "formula": self.h_fromula.proccess_formula(item_alleles["formula"], 1),
+                                "formula": self.h_fromula.proccess_formula(item_alleles["formula"], freqencia),
                                 "freq": freqencia
                             })
                 else:
@@ -247,13 +259,16 @@ class Handle_Reverse_Engineering():
                     for item_alleles in alleles_in_serializer.data:
                         if item_alleles["allele"] in alleles_pair:
                             temp_formulas.append(item_alleles["formula"])
-                            #print(item_alleles["allele"])
-                            #print(item_alleles["formula"])
+                            a = item_alleles["allele"]
+                            f = item_alleles["formula"]
+                            print(f"Fórmula para {a} con {marker}")
+                    print(f"Longitud de la lista de fórmulas a comparar {len(temp_formulas)}")
+                    # Selecciona por defecto la parte de la fórmula 1a
                     similar_token = self.h_fromula.join_formula_ambigua(temp_formulas[0], temp_formulas[1])
                     cont_snp.append({
                         "marker": marker,
                         "formula": similar_token,
-                        "freq": 4
+                        "freq": "1a"
                     })
         return cont_snp
 
@@ -270,10 +285,6 @@ class Handle_Reverse_Engineering():
         snps_notcon = self.processes_alleles_not_relevant(gen_id, freq_rs)
         # Proceso los alleles que contribuyen
         snps_con = self.processes_alleles_relevant(freq_rs, alleles_pair)
-        #dbsnp_keys = list(freq_rs.keys())
-       
-        
-        
         return snps_con + snps_notcon
 
     def processes_alleles_pair(self, gen_id, alleles_pair):   

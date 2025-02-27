@@ -67,6 +67,7 @@ class HandleFormulaUtils():
         return False
     
     def join_formula_ambigua(self, f_formula, s_formula):
+        # Selecciona por defecto la parte de la fórmula 1a
         f_formula = f_formula.split("@")
         s_formula = s_formula.split("@")
         f_formula_list = f_formula[len(f_formula)-1].split("|")
