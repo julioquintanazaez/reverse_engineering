@@ -206,7 +206,7 @@ class Handle_Reverse_Engineering():
             alleles_in_serializer = AllelesSerializer(alleles_in, many=True)
             for item in alleles_in_serializer.data:
                 notcont_snp.append({
-                    "allele": item["allele"],
+                    #"allele": item["allele"],
                     "marker": item["marker"],
                     "formula": self.h_fromula.proccess_formula(item["formula"], 0),
                     "freq": 0,
