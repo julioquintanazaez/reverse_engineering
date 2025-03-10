@@ -79,4 +79,15 @@ class HandleFormulaUtils():
         similar_token = [x for x in similar_token if x != "None"]
         return similar_token
     
+    def if_exist_formula(self, f_formula, s_formula):
+        f_formula = f_formula.split("@")
+        s_formula = s_formula.split("@")
+        f_formula_list = f_formula[len(f_formula)-1].split("|")
+        s_formula_list = s_formula[len(s_formula)-1].split("|")
+        f_token = [x for x in f_formula_list if x != "None"]
+        s_token = [x for x in s_formula_list if x != "None"]
+        if len(f_token)>1 and len(s_token)>1: 
+            return True
+        return False
+    
     
