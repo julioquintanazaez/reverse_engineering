@@ -1,6 +1,6 @@
 from rest_framework import serializers 
 
-class ExcelReferenceAlleleCombinationSerializer(serializers.Serializer):
+class ExcelSerializer(serializers.Serializer):
     file_uploaded = serializers.FileField()
 
     def validate_file(self, value):

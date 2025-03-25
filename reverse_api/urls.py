@@ -34,7 +34,6 @@ urlpatterns = [
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),  # Swagger UI  
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),  # Redoc  
     path('load/', ExcelUploadView.as_view(), name='load_file'),
-    #path('loadallelecombination/', ExcelUploadForReverseEngineeringView.as_view(), name='load_allelescombinations_file'),
     path('genes/', GenesListView.as_view(), name='genes'),
     path('alleles/', AllelesListView.as_view(), name='alleles'),
     path('genes_alleles/', GenesAllelesListView.as_view(), name='genes_alleles'),
@@ -43,6 +42,7 @@ urlpatterns = [
     path('get_allelescombinations_by_gene_id/<str:name>/', AllelesCombinationsByIDListView.as_view(), name='get_allelescombinations_by_gene_id'),
     #path('get_reverse_engineering/', GetReverseEngineeringView.as_view(), name='get_reverse_engineering'),
     path('get_patience_reverse_engineering/', GetPatienceReverseEngineeringView.as_view(), name='get_patience_reverse_engineering'),
+    path('loadallelecombination/', ExcelUploadForReverseEngineeringView.as_view(), name='load_allelescombinations_file'),
 ]
 
 urlpatterns += urlpatterns 

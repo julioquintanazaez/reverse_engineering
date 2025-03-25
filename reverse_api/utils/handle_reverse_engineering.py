@@ -21,7 +21,7 @@ class Handle_Reverse_Engineering():
         pass
 
     
-    def get_reverse_engineering(self, parent_data): 
+    def get_reverse_engineeringII(self, parent_data): 
         """
         Est función recive como parámetro (parent_data) datos de los genes y sus alleles de referencia para calcular
         la ingeniería inversa. La estructura de parámetros de entrada es:
@@ -94,6 +94,33 @@ class Handle_Reverse_Engineering():
 
         return (result)
     
+    def get_reverse_engineering(self, parent_data): 
+        """
+        Est función recive como parámetro (parent_data) datos de los genes y sus alleles de referencia para calcular
+        la ingeniería inversa. La estructura de parámetros de entrada es:
+        #data={'gen_list': [{'gen': 'CYP1A1', 'alleles_list': ['*3/*4', '*6/*8']}]}
+        """
+        genes_list = []
+        gen_list = parent_data["gen_list"]
+        for gen_item in gen_list:
+            gene = Genes.objects.filter(name=gen_item["gen"])
+            gen_serializer = GenesSerializer(gene, many=True) 
+            gen_name = gen_serializer.data[0]["name"]   
+            gen_id = gen_serializer.data[0]["id"]
+            list_alleles_pairs = gen_item["alleles_list"] 
+            for alleles_pair in list_alleles_pairs:
+                alleles_combinations = []
+                alleles = alleles_pair.split("/")
+                info_snp = self.processes_alleles_pair_extend(gen_id, alleles)
+                alleles_combinations.append({
+                                            "name" : alleles_pair,
+                                            "snps" : info_snp
+                                        })
+                genes_list.append({
+                                "gen_name" : gen_name,
+                                "alleles_pair": alleles_combinations
+                            }) 
+        return genes_list
 
     def get_patience_reverse_engineering(self, parent_data): 
         """
@@ -102,7 +129,6 @@ class Handle_Reverse_Engineering():
         #data={'gen_list': [{'gen': 'CYP1A1', 'alleles_list': ['*3/*4', '*6/*8']}]}
         """
         genes_list = []
-        
         gen_list = parent_data["gene_data"]
         for gen_item in gen_list:
             gene = Genes.objects.filter(name=gen_item["gen"])
@@ -189,14 +215,6 @@ class Handle_Reverse_Engineering():
                 print(f"formula en cero para alleles {allele} snp {marker} con frecuencia {freq_value}")
         return alleles_list
 
-    def processes_alleles_pair_extendI(self, gen_id, alleles_pair):   
-        snps = []     
-        dbsnp_cum = self.get_alleles_reference_data(gen_id, alleles_pair)          
-        freq_rs = Counter(dbsnp_cum.split("+"))#.items() # Aquí tengo los que contribuyen {"rs1": 1, "rs2": 2}
-        alleles_list = self.get_alleles_dict(gen_id)
-        snps = self.check_contribution(alleles_list, freq_rs, alleles_pair)
-        return snps
-
     def get_dict_from_alleles_serialized(self, serialized_query):
         # Devuelve la lista de alleles asiciado a un par formador
         temp_alleles = []
@@ -209,7 +227,7 @@ class Handle_Reverse_Engineering():
         return temp_alleles
 
     def alleles_ambiguity_number(self, alleles_info, alleles_pair):
-        # Devuelve la lista de alleles asiciado a un par formador
+        # Devuelve la lista de alleles asociado a un par formador
         alleles = []
         for item_alleles in alleles_info:
             if item_alleles["allele"] in alleles_pair:
@@ -235,13 +253,20 @@ class Handle_Reverse_Engineering():
                 })
         return notcont_snp
     
-    def processes_alleles_relevant(self, freq_rs, alleles_pair):
+    def processes_alleles_relevantII(self, freq_rs, alleles_pair):
         cont_snp = []
         for marker in freq_rs:
             query_alleles = Alleles.objects.filter(marker=marker) 
             query_serializer = AllelesSerializer(query_alleles, many=True)
             alleles_info = self.get_dict_from_alleles_serialized(query_serializer.data)
-            if len(alleles_info) < 2:  # un marcador no ambiguo   
+            if len(alleles_info) == 0 : # Marker igual None
+                print("Vacio-o marker igual None----------------")
+                cont_snp.append({
+                    "marker": marker, 
+                    "formula": None,
+                    "freq": None
+                })     
+            elif len(alleles_info) > 0 and len(alleles_info) < 2:  # un marcador no ambiguo y allele único  
                 print(f"Marcador único no ambiguo")  
                 freqencia = freq_rs[marker]
                 alleles_info = alleles_info[0]
@@ -250,33 +275,33 @@ class Handle_Reverse_Engineering():
                     "formula": self.h_fromula.proccess_formula(alleles_info["formula"], freqencia),
                     "freq": freqencia
                 })     
-            else:  
-                a_ambiguity = self.alleles_ambiguity_number(alleles_info, alleles_pair)
-                #print(a_ambiguity)
-                if len(a_ambiguity) < 2 and (alleles_pair[0] != alleles_pair[1]):  # un marcador ambiguo para un solo allele del par           
+            else: # Cuando los marcadores generan ambiguadad
+                a_ambiguity = self.alleles_ambiguity_number(alleles_info, alleles_pair)                
+                if len(a_ambiguity) > 0 and len(a_ambiguity) < 2 and (alleles_pair[0] != alleles_pair[1]):  # un marcador ambiguo para un solo allele del par           
                     print(f"Marcador único ambiguo")
                     freqencia = freq_rs[marker]
-                    a_ambiguity = a_ambiguity[0]
+                    a_ambiguity = a_ambiguity[0]     
                     cont_snp.append({
                         "marker": marker, 
                         "formula": self.h_fromula.proccess_formula(a_ambiguity["formula"], freqencia),
                         "freq": freqencia
                     })                        
                 else:
-                    if alleles_pair[0] == alleles_pair[1]: # un marcador ambiguo para el mismo alleles
+                    if alleles_pair[0] == alleles_pair[1]: # un marcador ambiguo para el mismo alleles del par: *5/*5
                         print(f"Marcador ambiguo para alleles similares")
-                        freqencia = freq_rs[marker]
+                        freqencia = freq_rs[marker]  
                         a_ambiguity = a_ambiguity[0]
                         cont_snp.append({
                             "marker": marker, 
                             "formula": self.h_fromula.proccess_formula(a_ambiguity["formula"], freqencia),
                             "freq": freqencia
                         })
-                    else:  # un marcador ambiguo para alleles distintos
+                    else:  # un marcador ambiguo para alleles distintos del par *5/*7
                         print(f"Marcador ambiguo para alleles distintios")
                         temp_formulas = []
                         freqencia = freq_rs[marker]
                         a_ambiguity = a_ambiguity
+                        print(a_ambiguity)
                         for item_alleles in a_ambiguity:
                             if item_alleles["allele"] in alleles_pair:
                                 temp_formulas.append(item_alleles["formula"])
@@ -299,7 +324,89 @@ class Handle_Reverse_Engineering():
                             })
         return cont_snp
 
+    def processes_alleles_relevant(self, freq_rs, alleles_pair):
+        cont_snp = []
+        for marker in freq_rs:
+            query_alleles = Alleles.objects.filter(marker=marker) 
+            query_serializer = AllelesSerializer(query_alleles, many=True)
+            alleles_info = self.get_dict_from_alleles_serialized(query_serializer.data)
+            a_ambiguity = self.alleles_ambiguity_number(alleles_info, alleles_pair) 
+            if len(alleles_info) == 0 : # Marker igual None descartar
+                #print("Vacio-o marker igual None----------------")
+                cont_snp.append({
+                    "marker": marker, 
+                    "formula": None,
+                    "freq": None
+                })     
+            elif len(alleles_info) > 0 and len(alleles_info) < 2:  # un marcador no ambiguo y allele único  
+                #print(f"Marcador único no ambiguo")  
+                freqencia = freq_rs[marker]
+                alleles_info = alleles_info[0]
+                cont_snp.append({
+                    "marker": marker, 
+                    "formula": self.h_fromula.proccess_formula(alleles_info["formula"], freqencia),
+                    "freq": freqencia
+                })     
+            else: # Cuando los marcadores generan ambiguadad
+                if len(a_ambiguity) != 0: # Si la ambiguedad != 0, vincula alleles que pertenecen al par formador
+                    if len(a_ambiguity) > 0 and len(a_ambiguity) < 2 and (alleles_pair[0] != alleles_pair[1]): 
+                         # un marcador ambiguo para un solo allele vinculado al par formador, par formador distinto           
+                        #print(f"Marcador único ambiguo")
+                        freqencia = freq_rs[marker]
+                        a_ambiguity = a_ambiguity[0]     
+                        cont_snp.append({
+                            "marker": marker, 
+                            "formula": self.h_fromula.proccess_formula(a_ambiguity["formula"], freqencia),
+                            "freq": freqencia
+                        })                        
+                    else:
+                        if alleles_pair[0] == alleles_pair[1]: 
+                            # un marcador ambiguo para más de un allele, vinculado al par formador, par igual: *5/*5
+                            #print(f"Marcador ambiguo para alleles similares")
+                            freqencia = freq_rs[marker]  
+                            a_ambiguity = a_ambiguity[0]
+                            cont_snp.append({
+                                "marker": marker, 
+                                "formula": self.h_fromula.proccess_formula(a_ambiguity["formula"], freqencia),
+                                "freq": freqencia
+                            })
+                        else:  # un marcador ambiguo para más de una allele, vinculados al par formador, par formador distinto: *5/*7
+                            #print(f"Marcador ambiguo para alleles distintios")
+                            temp_formulas = []
+                            freqencia = freq_rs[marker]
+                            a_ambiguity = a_ambiguity
+                            for item_alleles in a_ambiguity:
+                                if item_alleles["allele"] in alleles_pair:
+                                    temp_formulas.append(item_alleles["formula"])
+                            if self.h_fromula.if_exist_formula(temp_formulas[0], temp_formulas[1]): 
+                                #print(f"Existe fórmula para los dos")
+                                similar_token = self.h_fromula.join_formula_ambigua(temp_formulas[0], temp_formulas[1])
+                                cont_snp.append({
+                                    "marker": marker,
+                                    "formula": similar_token,
+                                    "freq": "1a"
+                                })
+                            else:
+                                #print(f"No existe fórmula para los dos")
+                                freqencia = freq_rs[marker]
+                                a_ambiguity = a_ambiguity[0]
+                                cont_snp.append({
+                                    "marker": marker, 
+                                    "formula": self.h_fromula.proccess_formula(a_ambiguity["formula"], freqencia),
+                                    "freq": freqencia
+                                })
+                else: # Si la ambiguedad es entre alleles que no pertenecen al par formador
+                    freqencia = freq_rs[marker]
+                    alleles_info = alleles_info[0]
+                    cont_snp.append({
+                        "marker": marker, 
+                        "formula": self.h_fromula.proccess_formula(alleles_info["formula"], freqencia),
+                        "freq": freqencia
+                    }) 
 
+        return cont_snp
+
+    
     def processes_alleles_pair_extend(self, gen_id, alleles_pair):   
         snps_con = []     
         snps_notcon = []     

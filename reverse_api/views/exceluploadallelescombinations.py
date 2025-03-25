@@ -5,13 +5,13 @@ from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView
 from rest_framework import parsers, renderers
 
-from ..serializers.excelreferenceallelescombination import ExcelReferenceAlleleCombinationSerializer
+from ..serializers.excelserializer import ExcelSerializer
 from ..utils.readchunkallelescombinations import ExcelFileParseAllelesCombinationsUtils
 
 from ..serializers.allelesreferenceserializer import AllelesReferenceSerializer
 from ..models.allelesreference import Alleles_Reference
 
-from ..serializers.genesallelesreferenceerializer import GenesAllelesReferenceSerializer_NotPairValidation
+from ..serializers.genesallelesreferenceerializer import GenesAllelesReferenceSerializer
 
 from ..utils.handle_reverse_engineering import Handle_Reverse_Engineering
 
@@ -24,7 +24,7 @@ class ExcelUploadForReverseEngineeringView(GenericAPIView):
     parser_classes = (parsers.FormParser, parsers.MultiPartParser, parsers.FileUploadParser)
     renderer_classes = (renderers.JSONRenderer, )
     file_content_parser_classes = (renderers.JSONRenderer, )
-    serializer_class = ExcelReferenceAlleleCombinationSerializer
+    serializer_class = ExcelSerializer
 
     def post(self, request):
         efpac = ExcelFileParseAllelesCombinationsUtils() 
@@ -37,28 +37,17 @@ class ExcelUploadForReverseEngineeringView(GenericAPIView):
             try:
                 # Calcular reverse_engineering aquí
                 genes_alleles_parent_data = efpac.readAllelesCombinationsDataFromFile(file)
-                serializer = GenesAllelesReferenceSerializer_NotPairValidation(data=genes_alleles_parent_data)
+                serializer = GenesAllelesReferenceSerializer(data=genes_alleles_parent_data)
                 if not serializer.is_valid():
                     return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
-                
-                return Response({'success':"True"}, status=status.HTTP_200_OK) 
+                response = hr.get_reverse_engineering(serializer.data) 
+                return Response(response, status=status.HTTP_200_OK) 
+                #return Response({'success':"True"}, status=status.HTTP_200_OK) 
             except:
                 return Response({'success':"False"}, status=status.HTTP_400_BAD_REQUEST)
             
             
-            """
-            serializer = GenesAllelesReferenceSerializer(data=genes_alleles_data)
-            if not serializer.is_valid():
-                #return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
-                return Response({'success':"True"}, status=status.HTTP_200_OK)      
-            try:
-                #response = hr.get_reverse_engineering(serializer.data) 
-                #return Response(response, status=status.HTTP_200_OK)
-                return Response({'success':"True"}, status=status.HTTP_200_OK)      
-            except:
-                raise Response({"status":"Some error occur processing reverse engineering"}, status=status.HTTP_400_BAD_REQUEST)
-            """
-        
+           
     
 
 """
