@@ -42,7 +42,7 @@ urlpatterns = [
     path('get_allelescombinations_by_gene_id/<str:name>/', AllelesCombinationsByIDListView.as_view(), name='get_allelescombinations_by_gene_id'),
     #path('get_reverse_engineering/', GetReverseEngineeringView.as_view(), name='get_reverse_engineering'),
     path('get_patience_reverse_engineering/', GetPatienceReverseEngineeringView.as_view(), name='get_patience_reverse_engineering'),
-    path('loadallelecombination/', ExcelUploadForReverseEngineeringView.as_view(), name='load_allelescombinations_file'),
+    path('loadallelecombination/', ExcelUploadForReverseEngineeringView.as_view(), name='loadallelecombination'),
 ]
 
 urlpatterns += urlpatterns 
