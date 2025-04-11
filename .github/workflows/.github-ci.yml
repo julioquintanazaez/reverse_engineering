@@ -1,8 +1,8 @@
-name: Deploy Files via FTP
+name: Deploy Files via FTPS
 
 on:
   push:
-    branches: [ main ]  # Trigger al hacer push a main
+    branches: [ main ]
 
 jobs:
   deploy:
@@ -12,15 +12,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Upload files via FTP
+      - name: Upload files via FTPS
         uses: SamKirkland/FTP-Deploy-Action@4.3.0
         with:
-          server: ${{ secrets.SERVER_IP_REVERSE }}       # Ej: ftp.ejemplo.com
-          username: ${{ secrets.SERVER_USER_REVERSE }}   # Secret para usuario FTP
-          password: ${{ secrets.SERVER_PASSWORD_REVERSE  }}   # Secret para contraseña FTP
-          local-dir: ./                           # Directorio local (repo completo)
-          server-dir: ${{ secrets.DEPLOY_PATH_REVERSE }} # Secret para ruta remota (ej: /var/www/app/)
-
+          server: ${{ secrets.SERVER_IP_REVERSE }}       
+          username: ${{ secrets.SERVER_USER_REVERSE }}   # Secret para usuario 
+          password: ${{ secrets.SERVER_PASSWORD_REVERSE  }}   # Secret para contraseña 
+          protocol: ftps                         # ¡Clave para FTPS!
+          port: 21                               # Puerto FTPS (generalmente 21 o 990)
+          local-dir: ./
+          server-dir: ${{ secrets.DEPLOY_PATH_REVERSE }}
 
               
 
