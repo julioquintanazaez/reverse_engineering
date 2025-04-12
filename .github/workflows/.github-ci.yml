@@ -13,6 +13,10 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Restart service
+        env:
+          WEBDAV_USER: ${{ secrets.SERVER_USER_REVERSE }}  # Usuario WebDAV
+          WEBDAV_PASSWORD: ${{ secrets.SERVER_PASSWORD_REVERSE }}  # Contraseña WebDAV
+          WEBDAV_HOST: ${{ secrets.SERVER_IP_REVERSE }}  # URL del servidor WebDAV
         run: |
             source /var/www/apireverseengenieringhaplotype.pgxsoftware.com/venv/bin/activate
 
