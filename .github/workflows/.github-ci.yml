@@ -1,4 +1,4 @@
-name: Despliegue de Proyecto Python
+name: Conectar a Contabo y Activar Entorno Virtual
 
 on:
   push:
@@ -9,14 +9,17 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout código
-        uses: actions/checkout@v3
-
-      - name: Restart service
-        env:
-          WEBDAV_USER: ${{ secrets.SERVER_USER_REVERSE }}  # Usuario WebDAV
-          WEBDAV_PASSWORD: ${{ secrets.SERVER_PASSWORD_REVERSE }}  # Contraseña WebDAV
-          WEBDAV_HOST: ${{ secrets.SERVER_IP_REVERSE }}  # URL del servidor WebDAV
-        run: |
+      - name: Conectar a Contabo vía SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_IP_REVERSE }}
+          username: ${{ secrets.SERVER_USER_REVERSE }}
+          password: ${{ secrets.SERVER_USER_REVERSE }}
+          script: |
+            # Activar entorno virtual
             source /var/www/apireverseengenieringhaplotype.pgxsoftware.com/venv/bin/activate
+            # Puedes agregar más comandos aquí si es necesario
+            # Por ejemplo, para verificar la versión de Python en el entorno virtual
+            # python --version
+
 
