@@ -26,7 +26,7 @@ jobs:
             WEBDAV_URL: ${{ secrets.SERVER_IP_REVERSE }}  # URL del servidor WebDAV
             NEW_DIRECTORY: ${{ secrets.DEPLOY_PATH_REVERSE }}  # Ruta de la nueva carpeta
         run: |
-          for file in./\*; do
+          for file in ./\*; do
             if [ -f "$file" ]; then
               echo "Subiendo archivo: $file"
               curl -u $WEBDAV_USER:$WEBDAV_PASSWORD -T "$file" "$WEBDAV_URL$NEW_DIRECTORY/$file"
