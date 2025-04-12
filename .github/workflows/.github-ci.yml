@@ -19,8 +19,9 @@ jobs:
           FTP_PASSWORD: ${{ secrets.SERVER_PASSWORD_REVERSE }}  # Contraseña del servidor FTP
           FTP_SERVER: ${{ secrets.SERVER_IP_REVERSE }}  # Dirección del servidor FTP
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH_REVERSE }}  # Ruta de destino en el servidor
+          FTP_PORT: "21" 
         run: |
-          curl -T ./ ftp://$FTP_USER:$FTP_PASSWORD@$FTP_SERVER$DEPLOY_PATH --ftp-create-dirs
+          curl -T ./ ftp://$FTP_USER:$FTP_PASSWORD@$FTP_SERVER:$FTP_PORT$DEPLOY_PATH --ftp-create-dirs
 
       
 
