@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Conectar a Contabo vía SSH
-        uses: appleboy/ssh-action@v1
+        uses: appleboy/sftp-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_IP_REVERSE }}
           username: ${{ secrets.SERVER_USER_REVERSE }}
