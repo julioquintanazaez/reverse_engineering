@@ -10,15 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Create directory on Contabo server via WebDAV
-        env:
-          WEBDAV_USER: ${{ secrets.SERVER_USER_REVERSE }}  # Usuario WebDAV
-          WEBDAV_PASSWORD: ${{ secrets.SERVER_PASSWORD_REVERSE }}  # Contraseña WebDAV
-          WEBDAV_URL: ${{ secrets.SERVER_IP_REVERSE }}  # URL del servidor WebDAV
-          NEW_DIRECTORY: ${{ secrets.DEPLOY_PATH_REVERSE }}  # Ruta de la nueva carpeta
-        run: |
-          curl -u $WEBDAV_USER:$WEBDAV_PASSWORD -X MKCOL "$WEBDAV_URL$NEW_DIRECTORY"
-       
       - name: Upload files to the new directory on Contabo via WebDAV
         env:
             WEBDAV_USER: ${{ secrets.SERVER_USER_REVERSE }}  # Usuario WebDAV
