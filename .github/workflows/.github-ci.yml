@@ -1,25 +1,22 @@
-name: Conectar a Contabo y Activar Entorno Virtual
+name: Deploy Files via FTP (TCP/21)
 
 on:
   push:
-    branches:
-      - main # o la rama que desees
+    branches: [ main ]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Conectar a Contabo vía SSH
-        uses: appleboy/sftp-action@v1.0.3
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Upload files via FTP (TCP)
+        uses: SamKirkland/FTP-Deploy-Action@4.3.0
         with:
-          host: ${{ secrets.SERVER_IP_REVERSE }}
-          username: ${{ secrets.SERVER_USER_REVERSE }}
-          password: ${{ secrets.SERVER_USER_REVERSE }}
-          script: |
-            # Activar entorno virtual
-            source /var/www/apireverseengenieringhaplotype.pgxsoftware.com/venv/bin/activate
-            # Puedes agregar más comandos aquí si es necesario
-            # Por ejemplo, para verificar la versión de Python en el entorno virtual
-            # python --version
-
-
+          server: ${{ secrets.SERVER_IP_REVERSE }}      # Ejemplo: ftp.miservidor.com
+          username: ${{ secrets.SERVER_USER_REVERSE }}   # Usuario FTP
+          password: ${{ secrets.SERVER_PASSWORD_REVERSE }} # Contraseña FTP
+          local-dir: ./                                # Directorio local
+          server-dir: ${{ secrets.DEPLOY_PATH_REVERSE }} # Ruta remota (ej: /var/www/)
