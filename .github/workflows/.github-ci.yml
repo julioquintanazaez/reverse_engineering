@@ -12,11 +12,7 @@ jobs:
       - name: Checkout código
         uses: actions/checkout@v3
 
-      - name: Conectar a servidor Contabo vía SSH
-        uses: actions/upload-artifact@v2
-        with:
-          host: ${{ secrets.SERVER_IP_REVERSE }}
-          username: ${{ secrets.SERVER_USER_REVERSE }}
-          password: ${{ secrets.SERVER_PASSWORD_REVERSE }} DEPLOY_PATH_REVERSE
-          source: "./"
-          target: ${{ secrets.DEPLOY_PATH_REVERSE }} 
+      - name: Restart service
+        run: |
+            source ${{ secrets.DEPLOY_PATH_REVERSE }}/venv/bin/activate || { echo "No se pudo activar el entorno virtual"; exit 1; }
+            cd ${{ secrets.DEPLOY_PATH_REVERSE }} 
