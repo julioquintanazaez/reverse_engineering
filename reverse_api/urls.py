@@ -11,7 +11,9 @@ from .views.patiencegeneallelereference import GetPatienceReverseEngineeringView
 from .views.patiencesviews import (
     UserTestResultsView,
     TestResultDetailView,
-    TestResultSearchView
+    TestResultSearchView,
+    TestResultDeleteView,
+    UserTestResultsDeleteView
 )
 
 from django.contrib import admin
@@ -54,6 +56,8 @@ urlpatterns = [
     path('tests/test/<str:test_code>/', TestResultDetailView.as_view(), name='test-result-detail'),
     path('tests/user/<str:user_code>/test/<str:test_code>/', TestResultDetailView.as_view(), name='specific-test-result'),
     path('tests/search/', TestResultSearchView.as_view(), name='test-result-search'),
+    path('tests/delete/<str:test_code>/', TestResultDeleteView.as_view(), name='test-result-delete'),
+    path('tests/delete/user/<str:user_code>/', UserTestResultsDeleteView.as_view(), name='test-user-delete'),
 
 ]
 
