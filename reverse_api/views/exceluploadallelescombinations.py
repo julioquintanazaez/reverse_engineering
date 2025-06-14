@@ -54,27 +54,7 @@ class ExcelUploadForReverseEngineeringView(GenericAPIView):
             
         return Response({'error':"Invalid input"}, status=status.HTTP_400_BAD_REQUEST)
 
-"""
-            data_file = serializer_file.validated_data['file_uploaded']
-            file = data_file
-            #Devolver las combinaciones en un json con formato para reverse 
-            try:
-                # Calcular reverse_engineering aquí
-                genes_alleles_parent_data = efpac.readAllelesCombinationsDataFromFile(file)
-                serializer = GenesAllelesReferenceSerializer(data=genes_alleles_parent_data)
-                if not serializer.is_valid():
-                    return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
-                response = hr.get_reverse_engineering(serializer.data) 
-                return Response(response, status=status.HTTP_200_OK) 
-                #return Response({'success':"True"}, status=status.HTTP_200_OK) 
-            except:
-                return Response({'success':"False"}, status=status.HTTP_400_BAD_REQUEST)
-            
-            
-           
-    
 
-"""
 
 
 
