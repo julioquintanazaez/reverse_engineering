@@ -8,6 +8,12 @@ from .views.allelescombinationsviews import AllelesCombinationsByIDListView, All
 from .views.allelesreferenceview import AllelesReferenceListView, GetReverseEngineeringView
 from .views.patiencegeneallelereference import GetPatienceReverseEngineeringView
 
+from .views.patiencesviews import (
+    UserTestResultsView,
+    TestResultDetailView,
+    TestResultSearchView
+)
+
 from django.contrib import admin
 from rest_framework.routers import DefaultRouter
 
@@ -43,6 +49,12 @@ urlpatterns = [
     #path('get_reverse_engineering/', GetReverseEngineeringView.as_view(), name='get_reverse_engineering'),
     path('get_patience_reverse_engineering/', GetPatienceReverseEngineeringView.as_view(), name='get_patience_reverse_engineering'),
     path('loadallelecombination/', ExcelUploadForReverseEngineeringView.as_view(), name='loadallelecombination'),
+    # Nuevos endpoint adicionados para manejar los requerimientos de las pruebas
+    path('tests/user/<str:user_code>/', UserTestResultsView.as_view(), name='user-test-results'),
+    path('tests/test/<str:test_code>/', TestResultDetailView.as_view(), name='test-result-detail'),
+    path('tests/user/<str:user_code>/test/<str:test_code>/', TestResultDetailView.as_view(), name='specific-test-result'),
+    path('tests/search/', TestResultSearchView.as_view(), name='test-result-search'),
+
 ]
 
 urlpatterns += urlpatterns 

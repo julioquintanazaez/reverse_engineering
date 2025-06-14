@@ -94,6 +94,33 @@ class Handle_Reverse_Engineering():
 
         return (result)
     
+    def get_patience_reverse_engineering(self, parent_data): 
+        """
+        Est función recive como parámetro (parent_data) datos de los genes y sus alleles de referencia para calcular
+        la ingeniería inversa. La estructura de parámetros de entrada es:
+        #data={'gen_list': [{'gen': 'CYP1A1', 'alleles_list': ['*3/*4', '*6/*8']}]}
+        """
+        genes_list = []
+        gen_list = parent_data["gene_data"]
+        for gen_item in gen_list:
+            gene = Genes.objects.filter(name=gen_item["gen"])
+            gen_serializer = GenesSerializer(gene, many=True) 
+            gen_name = gen_serializer.data[0]["name"]   
+            gen_id = gen_serializer.data[0]["id"]
+            alleles_pair = gen_item["alleles_pair"] # Extraigo el par de alleles
+            alleles_combinations = []
+            alleles = alleles_pair.split("/")
+            info_snp = self.processes_alleles_pair_extend(gen_id, alleles)
+            alleles_combinations.append({
+                                        "name" : alleles_pair,
+                                        "snps" : info_snp
+                                    })
+            genes_list.append({
+                            "gen_name" : gen_name,
+                            "alleles_pair": alleles_combinations
+                        }) 
+        return genes_list
+
     def get_reverse_engineering(self, parent_data): 
         """
         Est función recive como parámetro (parent_data) datos de los genes y sus alleles de referencia para calcular
@@ -122,33 +149,41 @@ class Handle_Reverse_Engineering():
                             }) 
         return genes_list
 
-    def get_patience_reverse_engineering(self, parent_data): 
+    def reverse_engineering_patience(self, patience_data): 
         """
-        Est función recive como parámetro (parent_data) datos de los genes y sus alleles de referencia para calcular
-        la ingeniería inversa. La estructura de parámetros de entrada es:
-        #data={'gen_list': [{'gen': 'CYP1A1', 'alleles_list': ['*3/*4', '*6/*8']}]}
+        Parámetros:
+          1.- patience_data: is a dictionary of patiences,
+              each patience is a dictionary with keys as patience id
+              and a list of tuples with genes and alleles pairs
         """
-        genes_list = []
-        gen_list = parent_data["gene_data"]
-        for gen_item in gen_list:
-            gene = Genes.objects.filter(name=gen_item["gen"])
-            gen_serializer = GenesSerializer(gene, many=True) 
-            gen_name = gen_serializer.data[0]["name"]   
-            gen_id = gen_serializer.data[0]["id"]
-            alleles_pair = gen_item["alleles_pair"] # Extraigo el par de alleles
-            alleles_combinations = []
-            alleles = alleles_pair.split("/")
-            info_snp = self.processes_alleles_pair_extend(gen_id, alleles)
-            alleles_combinations.append({
-                                        "name" : alleles_pair,
-                                        "snps" : info_snp
-                                    })
-            genes_list.append({
-                            "gen_name" : gen_name,
-                            "alleles_pair": alleles_combinations
-                        }) 
-        return genes_list
+        patientes_result = []
+        for patientes in patience_data["patience_list"]:
+            # Iterar sobre cada clave-valor en el diccionario
+            for patiente_key, genes_values in patientes.items():
+                #print(patiente_key)
+                genes_result = []
+                for value in genes_values:
+                    # Mandar a calcular la ingeniería inversa para el gen y su par de alleles
+                    geninfo = value.split(">")
+                    gen = geninfo[0]
+                    alleles = geninfo[1].split("/")
+                    try:
+                        gene = Genes.objects.filter(name=gen)
+                        gen_serializer = GenesSerializer(gene, many=True) 
+                        gen_name = gen_serializer.data[0]["name"]   
+                        gen_id = gen_serializer.data[0]["id"]
+                        #print(f"Procesando gene.................{gen_name}")
+                        result = self.processes_alleles_pair_extend(gen_id, alleles)
+                        genes_result.append({gen_name: result})
+                    except:
+                        genes_result.append({gen_name: "Fail................"})
+                        #print(f"Fail with gene.................{gen}")
 
+                patientes_result.append({patiente_key: genes_result})
+                #print("---------------------------------------")
+
+        return {"response": patientes_result}
+    
     def get_alleles_reference_data(self, gen_id, alleles_pair):
         a1_ref = Alleles_Reference.objects.filter(gene=gen_id, allele_ref=alleles_pair[0])
         a1_ref_serializer = AllelesReferenceSerializer(a1_ref, many=True)
@@ -405,7 +440,6 @@ class Handle_Reverse_Engineering():
                     }) 
 
         return cont_snp
-
     
     def processes_alleles_pair_extend(self, gen_id, alleles_pair):   
         snps_con = []     
