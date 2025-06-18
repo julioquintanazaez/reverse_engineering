@@ -20,7 +20,7 @@ jobs:
         SFTP_SERVER: ${{ secrets.SERVER_IP_REVERSE }}
         SFTP_USER: ${{ secrets.SERVER_USER_REVERSE }}
         SFTP_PASSWORD: ${{ secrets.SERVER_PASSWORD_REVERSE }}
-        SFTP_PORT: ${{ secrets.CONTABO_PORT || '22' }}
+        SFTP_PORT: '22'
         REMOTE_DIR: ${{ secrets.DEPLOY_PATH_REVERSE || '/var/www/' }}
       run: |
         lftp -u "$SFTP_USER,$SFTP_PASSWORD" -p $SFTP_PORT $SFTP_SERVER <<EOF
