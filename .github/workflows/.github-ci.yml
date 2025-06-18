@@ -1,22 +1,30 @@
-name: Deploy Files via FTP (TCP/21)
+name: Deploy to Contabo via SFTP
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main ]  # Cambia por tu rama principal si es diferente
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      - name: Upload files via FTP (TCP)
-        uses: SamKirkland/FTP-Deploy-Action@4.3.0
-        with:
-          server: ${{ secrets.SERVER_IP_REVERSE }}      # Ejemplo: ftp.miservidor.com
-          username: ${{ secrets.SERVER_USER_REVERSE }}   # Usuario FTP
-          password: ${{ secrets.SERVER_PASSWORD_REVERSE }} # Contraseña FTP
-          local-dir: ./                                # Directorio local
-          server-dir: ${{ secrets.DEPLOY_PATH_REVERSE }} # Ruta remota (ej: /var/www/)
+    - name: Install lftp (SFTP client)
+      run: sudo apt-get update && sudo apt-get install -y lftp
+
+    - name: Upload files via SFTP
+      env:
+        SFTP_SERVER: ${{ secrets.SERVER_IP_REVERSE }}
+        SFTP_USER: ${{ secrets.SERVER_USER_REVERSE }}
+        SFTP_PASSWORD: ${{ secrets.SERVER_PASSWORD_REVERSE }}
+        SFTP_PORT: ${{ secrets.CONTABO_PORT || '22' }}
+        REMOTE_DIR: ${{ secrets.DEPLOY_PATH_REVERSE || '/var/www/' }}
+      run: |
+        lftp -u "$SFTP_USER,$SFTP_PASSWORD" -p $SFTP_PORT $SFTP_SERVER <<EOF
+        set ssl:verify-certificate no
+        mirror -R -v -X .git/ -X .github/ ./ $REMOTE_DIR
+        quit
+        EOF
