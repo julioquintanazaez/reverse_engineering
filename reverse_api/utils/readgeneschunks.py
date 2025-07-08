@@ -1,12 +1,13 @@
 
 import openpyxl 
+from openpyxl import load_workbook
 
 from ..models.genes import Genes
 from ..models.alleles import Alleles
 from ..models.allelesreference import Alleles_Reference
 from .handle_combinations import Handle_Alleles_Combinations
 
-from ..excel_features.features import load_gene_features, load_alleles_features
+from ..excel_features.features import load_gene_features, load_alleles_features, get_formula_indexes_from_row
 
 
 class ExcelFileParseUtils(): 
@@ -57,7 +58,7 @@ class ExcelFileParseUtils():
     def readDataFile(self, file):
         hac = Handle_Alleles_Combinations() # Handle Alleles Combinations
         #print(f' The file name is: {file}')      
-        wb = openpyxl.load_workbook(file)
+        wb = load_workbook(file)
         #print(wb.sheetnames) 
         # sheet = wb.active  
         snps_wsh = wb['SNPs']  
@@ -116,7 +117,7 @@ class ExcelFileParseUtils():
                         )  
 
     # Nuevo from META
-    #         
+    # Este es el que se utiliza actualmente 
     def readDataFileFromMETA(self, file):
         hac = Handle_Alleles_Combinations() # Handle Alleles Combinations
         #print(f' The file name is: {file}')      
@@ -130,10 +131,12 @@ class ExcelFileParseUtils():
         self.read_Alleles_Reference_From_META(snps_wsh)
         print("Read files done...")
 
+    """
     def cell_row_formula(self, row, input):
         index = (int)(input)
         temp = f"@{row[index]}|{row[index+1]}|{row[index+2]}|{row[index+3]}|{row[index+4]}"  
         return temp
+    
     
     def set_up_formula(self, row, gene_desc):
         formula = self.cell_row_formula(row, gene_desc["Formula_0"])
@@ -141,8 +144,10 @@ class ExcelFileParseUtils():
         formula = formula + self.cell_row_formula(row, gene_desc["Formula_2"])
         formula = formula + self.cell_row_formula(row, gene_desc["Formula_3"])  
         return formula
-    
+    """
+
     def extended_cell_row_formula(self, row, begin, end):
+        #print(f"{begin}:{end}")
         begin = (int)(begin)
         end = (int)(end)
         temp = f"@{row[begin]}"
@@ -156,18 +161,25 @@ class ExcelFileParseUtils():
         return begin, end
     
     def set_up_formula_extended(self, row, gene_desc):
-        begin, end = self.get_begin_end(gene_desc["Formula_0"])
+        begin, end = self.get_begin_end(gene_desc["0"])
         formula = self.extended_cell_row_formula(row, begin, end)
-        begin, end = self.get_begin_end(gene_desc["Formula_1"])
+        begin, end = self.get_begin_end(gene_desc["1"])
         formula = formula + self.extended_cell_row_formula(row, begin, end)
-        begin, end = self.get_begin_end(gene_desc["Formula_2"])
+        begin, end = self.get_begin_end(gene_desc["2"])
         formula = formula + self.extended_cell_row_formula(row, begin, end)
-        begin, end = self.get_begin_end(gene_desc["Formula_3"])
+        begin, end = self.get_begin_end(gene_desc["3"])
         formula = formula + self.extended_cell_row_formula(row, begin, end) 
-        begin, end = self.get_begin_end(gene_desc["Formula_a"])
+        begin, end = self.get_begin_end(gene_desc["1a"])
         formula = formula + self.extended_cell_row_formula(row, begin, end)  
         return formula
         
+    def get_row_values_by_number(self, sheet, row_number):
+        # Obtener la fila por su número
+        row = sheet[row_number]
+        # Extraer los valores de las celdas
+        row_values = [cell.value for cell in row]
+        return row_values
+
     def read_Genes_And_Alleles_From_META(self, sheet):
         for index, row in enumerate(sheet.iter_rows(values_only=True), start=1):
             if row[0] != None:
@@ -183,6 +195,8 @@ class ExcelFileParseUtils():
              
     def extract_gene_body(self, index, sheet):
         gene_desc = load_gene_features()
+        row_values = self.get_row_values_by_number(sheet, 2)
+        formula_desc = get_formula_indexes_from_row(row_values)
         genbody = 0
         gene_name = ""
         gene_protein = ""
@@ -214,7 +228,7 @@ class ExcelFileParseUtils():
 
             allele = row[gene_desc["Allele"]]
             genotype = row[gene_desc["Genotype"]]
-            print(f"Insertar datos con: {gene_name} {allele} {gene_marker} {gene_protein} {gene_chain} -------------")
+            #print(f"Insertar datos con: {gene_name} {allele} {gene_marker} {gene_protein} {gene_chain} -------------")
             genbody = genbody + 1  
             gene, _ = Genes.objects.get_or_create(name=gene_name) 
             _, _ = Alleles.objects.get_or_create(
@@ -223,7 +237,8 @@ class ExcelFileParseUtils():
                     allele = allele,
                     marker = gene_marker,
                     genotype = genotype,
-                    formula = self.set_up_formula_extended(row, gene_desc),  
+                    #Aquí
+                    formula = self.set_up_formula_extended(row, formula_desc),  
                     snp = genbody,
                     gene=gene
                 )  
@@ -246,7 +261,8 @@ class ExcelFileParseUtils():
             #print(f"Gene name: {gene_name} con allele: {row[a]} y SNP: {row[s]}")
         
 
-   
+    
+
 
 
         

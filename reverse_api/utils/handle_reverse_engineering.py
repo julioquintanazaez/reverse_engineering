@@ -184,6 +184,34 @@ class Handle_Reverse_Engineering():
 
         return {"response": patientes_result}
     
+
+    def reveng_patience(self, genes_data): 
+        """
+        Parámetros:
+          1.- patient_data: is a dictionary of genes,
+              each gene contains a list of tuples with genes and alleles pairs
+        """
+        genes_result = []
+        for value in genes_data:
+            # Mandar a calcular la ingeniería inversa para el gen y su par de alleles
+            geninfo = value.split(">")
+            gen = geninfo[0]
+            alleles = geninfo[1].split("/")
+            try:
+                gene = Genes.objects.filter(name=gen)
+                gen_serializer = GenesSerializer(gene, many=True) 
+                gen_name = gen_serializer.data[0]["name"]   
+                gen_id = gen_serializer.data[0]["id"]
+                #print(f"Procesando gene.................{gen_name}")
+                result = self.processes_alleles_pair_extend(gen_id, alleles)
+                genes_result.append({gen_name: result})
+            except:
+                genes_result.append({gen_name: "Fail................"})
+                #print(f"Fail with gene.................{gen}")
+
+        return {"response": genes_result}
+    
+    
     def get_alleles_reference_data(self, gen_id, alleles_pair):
         a1_ref = Alleles_Reference.objects.filter(gene=gen_id, allele_ref=alleles_pair[0])
         a1_ref_serializer = AllelesReferenceSerializer(a1_ref, many=True)

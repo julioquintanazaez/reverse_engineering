@@ -50,7 +50,6 @@ class ExcelUploadView(GenericAPIView):
         if serializer_file.is_valid(raise_exception=True):
             data_file = serializer_file.validated_data['file_uploaded']
             file = data_file
-            #erfd.readDataFile(file) 
             print("Read start") 
             erfd.readDataFileFromMETA(file)     
             print("Read finish")

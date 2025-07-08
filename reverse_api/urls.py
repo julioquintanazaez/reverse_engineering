@@ -1,14 +1,15 @@
 from django.urls import include, path
 from rest_framework import routers
 from .views.exceluploadview import ExcelUploadView
-from .views.exceluploadallelescombinations import ExcelUploadForReverseEngineeringView
+from .views.exceluploadreverseengineering import ExcelUploadForReverseEngineeringView
 from .views.genesview import GenesListView, GenesAllelesListView
 from .views.allelesview import AllelesListView
 from .views.allelescombinationsviews import AllelesCombinationsByIDListView, AllelesCombinationsAllListView
 from .views.allelesreferenceview import AllelesReferenceListView, GetReverseEngineeringView
 from .views.patiencegeneallelereference import GetPatienceReverseEngineeringView
+from .views.patientsview import TestPatientsPDFView, PatientCodesByTestView
 
-from .views.patiencesviews import (
+from .views.testsviews import (
     UserTestResultsView,
     TestResultDetailView,
     TestResultSearchView,
@@ -58,7 +59,9 @@ urlpatterns = [
     path('tests/search/', TestResultSearchView.as_view(), name='test-result-search'),
     path('tests/delete/<str:test_code>/', TestResultDeleteView.as_view(), name='test-result-delete'),
     path('tests/delete/user/<str:user_code>/', UserTestResultsDeleteView.as_view(), name='test-user-delete'),
-
+    path('tests/<str:test_code>/patient/<str:patient_code>/pdf/', TestPatientsPDFView.as_view(), 
+        name='test-paciente-pdf'),
+    path('tests/<str:test_code>/patient-codes/', PatientCodesByTestView.as_view(), name='patient-codes-by-test'),
 ]
 
 urlpatterns += urlpatterns 
