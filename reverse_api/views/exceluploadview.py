@@ -1,5 +1,5 @@
 from django.shortcuts import render
-import openpyxl  
+#import openpyxl  
 from rest_framework import status  
 from rest_framework.response import Response  
 
@@ -51,8 +51,12 @@ class ExcelUploadView(GenericAPIView):
             data_file = serializer_file.validated_data['file_uploaded']
             file = data_file
             print("Read start") 
-            erfd.readDataFileFromMETA(file)     
+            #erfd.readDataFileFromMETA(file)   
+            erfd.procesar_excel(file)  
             print("Read finish")
             return Response({'success':"True"}, status=status.HTTP_200_OK)      
 
         return Response({'success':"False"}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+    

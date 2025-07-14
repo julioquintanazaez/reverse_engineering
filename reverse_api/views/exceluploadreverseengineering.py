@@ -54,19 +54,20 @@ class ExcelUploadForReverseEngineeringView(GenericAPIView):
                 return Response({'error':"Fail to save tests in db"}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
             patients_code = []  
-
             if created_test:
                 # Calcular reverse para cada paciente (test_id, patient_data)
+                #print(patient_data["patience_list"])
                 try:
-                    for patientes in patient_data["patience_list"]:
+                    for patiente in patient_data["patience_list"]:
+                        #print(patiente)
                         # Iterar sobre cada clave-valor en el diccionario
-                        for patiente_code, genes_values in patientes.items():
+                        for patiente_code, genes_values in patiente.items():
+                            print(f"{patiente_code}: --- {genes_values}")
                             response_json = hr.reveng_patience(genes_data=genes_values)
-                            print(f"Test code: {test.id}--{test.test_code} with User code: {patiente_code} and JSON length: {len(response_json)}")
-                            # Guardar en base de datos json de reverse           
+                            #print(f"Test code: {test.id}--{test.test_code} with User code: {patiente_code} and JSON length: {len(response_json)}")
                             try: 
                                 # Guardar en base de datos json de reverse           
-                                patient, created_patient = Patient.objects.get_or_create(
+                                _, _ = Patient.objects.get_or_create(
                                     test = test,
                                     code = patiente_code,
                                     data_json = response_json["response"]
@@ -84,7 +85,59 @@ class ExcelUploadForReverseEngineeringView(GenericAPIView):
             response_final = {
                 "test_code": test.test_code,
                 "user_id": test.user_code,
-                "patients_code": patients_code 
+                "patients_code": patients_code,
+            }
+
+            return Response(response_final, status=status.HTTP_200_OK)
+            
+        return Response({'error':"Invalid input"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ReverseEngineeringJSONView(GenericAPIView): 
+    throttle_classes = ()
+    permission_classes = ()
+    parser_classes = (parsers.FormParser, parsers.MultiPartParser, parsers.FileUploadParser)
+    renderer_classes = (renderers.JSONRenderer, )
+    file_content_parser_classes = (renderers.JSONRenderer, )
+    serializer_class = InputTestSerializer
+
+    def post(self, request):
+        efpac = ExcelFileParseAllelesCombinationsUtils() 
+        hr = Handle_Reverse_Engineering() 
+        serializer_file = self.serializer_class(data=request.data)
+        if serializer_file.is_valid(raise_exception=True):
+            data_user = serializer_file.validated_data['userid']
+            data_test = serializer_file.validated_data['testid']
+            data_file = serializer_file.validated_data['file_uploaded']  
+            # Validar mediante endpoint que el usuario existe y esta logueado
+
+            # Calcular datos de genes del excel y guardar en un fichero   
+            file = data_file 
+            try:
+                # Preparar datos para reverse_engineering aquí
+                patient_data = efpac.readAllelesCombinationsDataFromFile(file)
+            except:
+                return Response({'error':"Fail to load combinations"}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+            
+            
+            patients_code = []  
+            try:
+                for patiente in patient_data["patience_list"]:
+                    #print(patiente)
+                    # Iterar sobre cada clave-valor en el diccionario
+                    for patiente_code, genes_values in patiente.items():
+                        print(f"{patiente_code}: --- {genes_values}")
+                        response_json = hr.reveng_patience(genes_data=genes_values)
+                        #print(f"Test code: {test.id}--{test.test_code} with User code: {patiente_code} and JSON length: {len(response_json)}")
+                        
+                        patients_code.append(response_json)
+
+            except Exception as e:
+                print(f"{'error:Fail reverse computations'}: {str(e)}")
+                return Response({'error':"Fail reverse computations"}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+           
+            response_final = {
+                "patients_results": patients_code,
             }
 
             return Response(response_final, status=status.HTTP_200_OK)

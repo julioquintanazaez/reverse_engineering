@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.urls import include, path
 from rest_framework import routers
 from .views.exceluploadview import ExcelUploadView
@@ -8,6 +9,7 @@ from .views.allelescombinationsviews import AllelesCombinationsByIDListView, All
 from .views.allelesreferenceview import AllelesReferenceListView, GetReverseEngineeringView
 from .views.patiencegeneallelereference import GetPatienceReverseEngineeringView
 from .views.patientsview import TestPatientsPDFView, PatientCodesByTestView
+from .views.exceluploadreverseengineering import ReverseEngineeringJSONView
 
 from .views.testsviews import (
     UserTestResultsView,
@@ -16,6 +18,9 @@ from .views.testsviews import (
     TestResultDeleteView,
     UserTestResultsDeleteView
 )
+
+from .views.cleanupall import DevelopmentCleanupView
+from .views.exceluploadview2 import GeneImportAPIView
 
 from django.contrib import admin
 from rest_framework.routers import DefaultRouter
@@ -42,16 +47,14 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),  # Swagger UI  
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),  # Redoc  
-    path('load/', ExcelUploadView.as_view(), name='load_file'),
     path('genes/', GenesListView.as_view(), name='genes'),
     path('alleles/', AllelesListView.as_view(), name='alleles'),
     path('genes_alleles/', GenesAllelesListView.as_view(), name='genes_alleles'),
     path('genes_alleles_reference/', AllelesReferenceListView.as_view(), name='genes_alleles_reference'),
-    path('get_all_alleles_combinations/', AllelesCombinationsAllListView.as_view(), name='get_all_alleles_combinations'),
-    path('get_allelescombinations_by_gene_id/<str:name>/', AllelesCombinationsByIDListView.as_view(), name='get_allelescombinations_by_gene_id'),
+    #path('get_all_alleles_combinations/', AllelesCombinationsAllListView.as_view(), name='get_all_alleles_combinations'),
+    #path('get_allelescombinations_by_gene_id/<str:name>/', AllelesCombinationsByIDListView.as_view(), name='get_allelescombinations_by_gene_id'),
     #path('get_reverse_engineering/', GetReverseEngineeringView.as_view(), name='get_reverse_engineering'),
-    path('get_patience_reverse_engineering/', GetPatienceReverseEngineeringView.as_view(), name='get_patience_reverse_engineering'),
-    path('loadallelecombination/', ExcelUploadForReverseEngineeringView.as_view(), name='loadallelecombination'),
+    #path('get_patience_reverse_engineering/', GetPatienceReverseEngineeringView.as_view(), name='get_patience_reverse_engineering'),
     # Nuevos endpoint adicionados para manejar los requerimientos de las pruebas
     path('tests/user/<str:user_code>/', UserTestResultsView.as_view(), name='user-test-results'),
     path('tests/test/<str:test_code>/', TestResultDetailView.as_view(), name='test-result-detail'),
@@ -62,6 +65,16 @@ urlpatterns = [
     path('tests/<str:test_code>/patient/<str:patient_code>/pdf/', TestPatientsPDFView.as_view(), 
         name='test-paciente-pdf'),
     path('tests/<str:test_code>/patient-codes/', PatientCodesByTestView.as_view(), name='patient-codes-by-test'),
+    path('reverse/file/import-data/', GeneImportAPIView.as_view(), name='import_data'),
+    path('reverse/file/load/', ExcelUploadView.as_view(), name='load_file'),
+    path('reverse/file/proccess_reverse/', ExcelUploadForReverseEngineeringView.as_view(), name='proccess_reverse'),
+    path('reverse/file/reverse_json/', ReverseEngineeringJSONView.as_view(), name='reverse_json'),
+    
 ]
+
+if settings.DEBUG:
+    urlpatterns += [
+        path('api/dev/clean-database/', DevelopmentCleanupView.as_view(), name='dev-clean-database'),
+    ]
 
 urlpatterns += urlpatterns 

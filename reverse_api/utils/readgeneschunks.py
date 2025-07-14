@@ -119,7 +119,7 @@ class ExcelFileParseUtils():
     # Nuevo from META
     # Este es el que se utiliza actualmente 
     def readDataFileFromMETA(self, file):
-        hac = Handle_Alleles_Combinations() # Handle Alleles Combinations
+        #hac = Handle_Alleles_Combinations() # Handle Alleles Combinations
         #print(f' The file name is: {file}')      
         wb = openpyxl.load_workbook(file, data_only=True)
         #print(wb.sheetnames) 
