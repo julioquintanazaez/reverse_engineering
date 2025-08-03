@@ -21,19 +21,19 @@ class GeneImportAPIView(GenericAPIView):
     file_content_parser_classes = (renderers.JSONRenderer, )
     serializer_class = ExcelUploadSerializer
 
-    def post(self, request, format=None):
+    def post(self, request , format=None):
         serializer_file = self.serializer_class(data=request.data)
         if serializer_file.is_valid(raise_exception=True):
             data_file = serializer_file.validated_data['file_uploaded']
             file = data_file
 
-        file_obj = file #request.FILES['file']
-        file_name = default_storage.save(f'tmp/{file_obj.name}', ContentFile(file_obj.read()))
-        file_path = default_storage.path(file_name)
+        #file_obj = file #request.FILES['file']
+        #file_name = default_storage.save(f'tmp/{file_obj.name}', ContentFile(file_obj.read()))
+        #file_path = default_storage.path(file_name)
         
         try:
             importer = GeneDataImporter()
-            importer.process_excel_file(file_path)
+            importer.process_excel_file(file)
             
             return Response({
                 'message': 'File processed successfully',
@@ -47,5 +47,6 @@ class GeneImportAPIView(GenericAPIView):
             
         finally:
             # Limpiar archivo temporal
-            if os.path.exists(file_path):
-                os.remove(file_path)
+            #if os.path.exists(file_path):
+            #    os.remove(file_path)
+            pass
