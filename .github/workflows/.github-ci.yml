@@ -26,7 +26,7 @@ jobs:
         run: |
           sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no -r ./* "$SSH_USER@$SSH_HOST:$REMOTE_DIR"
 
-      - name: Restart install requirements
+      - name: Install requirements and run django server
         run: |
           sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" "
             cd $REMOTE_DIR
@@ -35,6 +35,16 @@ jobs:
             pip install -r requirements.txt
             python manage.py runserver
             echo 'Instalación de requirements y levantar servidor'
+          "
+
+      - name: Restart my reverse service
+        run: |
+          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" "
+            cd $REMOTE_DIR
+            # Comandos adicionales si necesitas:
+            sudo systemctl daemon-reload
+            sudo systemctl restart apireverseengeniering  # ¡Cambia por tu servicio!
+            echo 'Despliegue completado y servicio reiniciado'
           "
 
   
