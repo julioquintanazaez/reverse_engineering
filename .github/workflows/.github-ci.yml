@@ -33,7 +33,9 @@ jobs:
             # Comandos adicionales si necesitas:
             source venv/bin/activate  # Si usas virtualenv
             pip install -r requirements.txt
-            # sudo systemctl restart reverse_engineering.service  # ¡Cambia por tu servicio!
+            python manage.py runserver
+            #sudo systemctl daemon-reload
+            #sudo systemctl restart apireverseengeniering  # ¡Cambia por tu servicio!
             echo 'Despliegue completado y servicio reiniciado'
           "
 
