@@ -33,7 +33,7 @@ jobs:
             # Comandos adicionales si necesitas:
             source venv/bin/activate  # Si usas virtualenv
             pip install -r requirements.txt
-            python manage.py runserver
+            #python manage.py runserver
             echo 'Instalación de requirements y levantar servidor'
           "
 
