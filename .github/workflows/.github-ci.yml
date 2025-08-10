@@ -26,7 +26,7 @@ jobs:
         run: |
           sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no -r ./* "$SSH_USER@$SSH_HOST:$REMOTE_DIR"
 
-      - name: Restart service and cleanup
+      - name: Restart install requirements
         run: |
           sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" "
             cd $REMOTE_DIR
@@ -34,9 +34,7 @@ jobs:
             source venv/bin/activate  # Si usas virtualenv
             pip install -r requirements.txt
             python manage.py runserver
-            #sudo systemctl daemon-reload
-            #sudo systemctl restart apireverseengeniering  # ¡Cambia por tu servicio!
-            echo 'Despliegue completado y servicio reiniciado'
+            echo 'Instalación de requirements y levantar servidor'
           "
 
   
