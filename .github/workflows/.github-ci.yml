@@ -1,4 +1,4 @@
-name: Deploy to Contabo via SFTP
+name: Deploy Reverse project to Contabo 
 
 on:
   push:
@@ -6,25 +6,55 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+     runs-on: ubuntu-latest
+     env:  # Variables de entorno globales (para todos los steps)
+      REMOTE_DIR: ${{ secrets.DEPLOY_PATH_REVERSE || '/var/www/' }}
+      SSH_HOST: ${{ secrets.SERVER_IP_REVERSE }}
+      SSH_USER: ${{ secrets.SERVER_USER_REVERSE }}
+      SSH_PASSWORD: ${{ secrets.SERVER_PASSWORD_REVERSE }}
 
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+  
+      - name: Install SSHpass (para conexión con contraseña)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y sshpass
 
-    - name: Install lftp (SFTP client)
-      run: sudo apt-get update && sudo apt-get install -y lftp
+      - name: Upload files via SCP
+        run: |
+          sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no -r ./* "$SSH_USER@$SSH_HOST:$REMOTE_DIR"
 
-    - name: Upload files via SFTP
-      env:
-        SFTP_SERVER: ${{ secrets.SERVER_IP_REVERSE }}
-        SFTP_USER: ${{ secrets.SERVER_USER_REVERSE }}
-        SFTP_PASSWORD: ${{ secrets.SERVER_PASSWORD_REVERSE }}
-        SFTP_PORT: '22'
-        REMOTE_DIR: ${{ secrets.DEPLOY_PATH_REVERSE || '/var/www/' }}
-      run: |
-        lftp -u "$SFTP_USER,$SFTP_PASSWORD" -p $SFTP_PORT $SFTP_SERVER <<EOF
-        set ssl:verify-certificate no
-        mirror -R -v -X .git/ -X .github/ ./ $REMOTE_DIR
-        quit
-        EOF
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'  # Cambia la versión según tus necesidades
+
+      - name: Install requirements and run django server
+        run: |
+          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" "
+            cd $REMOTE_DIR
+            # Comandos adicionales si necesitas:
+            source venv/bin/activate  # Si usas virtualenv
+            pip install -r requirements.txt
+            python3 manage.py migrate  # Aplicar migraciones de Django
+            #python3 manage.py collectstatic --noinput  # Recolectar archivos estáticos
+            # Iniciar el servidor o cualquier otro comando necesario
+            python3 manage.py runserver 
+            echo 'Instalación de requirements y levantar servidor'
+          "
+
+      - name: Restart my reverse service
+        run: |
+          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" "
+            cd $REMOTE_DIR
+            # Comandos adicionales si necesitas:
+            sudo systemctl daemon-reload
+            sudo systemctl restart apireverseengeniering  # ¡Cambia por tu servicio!
+            echo 'Despliegue completado y servicio reiniciado'
+          "
+
+      
+
+  
