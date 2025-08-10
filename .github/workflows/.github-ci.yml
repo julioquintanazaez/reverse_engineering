@@ -45,6 +45,16 @@ jobs:
             echo 'Instalación de requirements y levantar servidor'
           "
 
+      - name: Restart my reverse service
+        run: |
+          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" "
+            cd $REMOTE_DIR
+            # Comandos adicionales si necesitas:
+            sudo systemctl daemon-reload
+            sudo systemctl restart apireverseengeniering  # ¡Cambia por tu servicio!
+            echo 'Despliegue completado y servicio reiniciado'
+          "
+
       
 
   
