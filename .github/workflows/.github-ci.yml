@@ -45,13 +45,13 @@ jobs:
         run: |
           sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" "
             cd $REMOTE_DIR
-            #ssh -o ServerAliveInterval=120 "$SSH_USER@$SSH_HOST"
+            ssh -o ServerAliveInterval=120 "$SSH_USER@$SSH_HOST"
             # Comandos adicionales si necesitas:
             source venv/bin/activate  # Si usas virtualenv
             python3 manage.py makemigrations
             python3 manage.py migrate  # Aplicar migraciones de Django
             python3 manage.py runserver --noreload
-            echo 'Instalación de requirements y levantar servidor'
+            echo 'Levantar servidor'
           "
      
       #- name: Restart my reverse service
