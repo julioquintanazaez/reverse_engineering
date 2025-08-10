@@ -9,9 +9,9 @@ jobs:
      runs-on: ubuntu-latest
      env:  # Variables de entorno globales (para todos los steps)
       REMOTE_DIR: ${{ secrets.DEPLOY_PATH_REVERSE || '/var/www/' }}
-      #SSH_HOST: ${{ secrets.SERVER_IP_REVERSE }}
-      #SSH_USER: ${{ secrets.SERVER_USER_REVERSE }}
-      #SSH_PASSWORD: ${{ secrets.SERVER_PASSWORD_REVERSE }}
+      SSH_HOST: ${{ secrets.SERVER_IP_REVERSE }}
+      SSH_USER: ${{ secrets.SERVER_USER_REVERSE }}
+      SSH_PASSWORD: ${{ secrets.SERVER_PASSWORD_REVERSE }}
 
      steps:
       - name: Checkout code
