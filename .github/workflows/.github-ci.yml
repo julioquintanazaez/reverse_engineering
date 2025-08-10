@@ -39,7 +39,7 @@ jobs:
             source venv/bin/activate  # Si usas virtualenv
             pip install -r requirements.txt
             python3 manage.py migrate  # Aplicar migraciones de Django
-            python3 manage.py collectstatic --noinput  # Recolectar archivos estáticos
+            #python3 manage.py collectstatic --noinput  # Recolectar archivos estáticos
             # Iniciar el servidor o cualquier otro comando necesario
             python3 manage.py runserver 
             echo 'Instalación de requirements y levantar servidor'
