@@ -22,5 +22,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y sshpass
 
+      - name: Upload files via SCP
+        run: |
+          sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no -r ./* "$SSH_USER@$SSH_HOST:$REMOTE_DIR"
 
   
