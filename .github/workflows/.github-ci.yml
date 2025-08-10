@@ -38,13 +38,30 @@ jobs:
             # Comandos adicionales si necesitas:
             source venv/bin/activate  # Si usas virtualenv
             pip install -r requirements.txt
+            echo 'Instalación de requirements'
+          "
+
+      - name: Run django server
+        run: |
+          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" "
+            cd $REMOTE_DIR
+            # Comandos adicionales si necesitas:
+            source venv/bin/activate  # Si usas virtualenv
             python3 manage.py migrate  # Aplicar migraciones de Django
-            #python3 manage.py collectstatic --noinput  # Recolectar archivos estáticos
-            # Iniciar el servidor o cualquier otro comando necesario
             python3 manage.py runserver 
             echo 'Instalación de requirements y levantar servidor'
           "
      
+      #- name: Restart my reverse service
+        #run: |
+          #sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" "
+            #cd $REMOTE_DIR
+            # Comandos adicionales si necesitas:
+            #sudo systemctl daemon-reload
+            #sudo systemctl restart apireverseengeniering  # ¡Cambia por tu servicio!
+            #echo 'Despliegue completado y servicio reiniciado'
+          #"
+
       
 
   
