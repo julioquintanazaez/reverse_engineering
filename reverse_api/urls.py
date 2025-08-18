@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.conf.urls.static import static
 from django.urls import include, path
 from rest_framework import routers
 from .views.exceluploadview import ExcelUploadView
@@ -10,6 +11,7 @@ from .views.allelesreferenceview import AllelesReferenceListView, GetReverseEngi
 from .views.patiencegeneallelereference import GetPatienceReverseEngineeringView
 from .views.patientsview import TestPatientsPDFView, PatientCodesByTestView
 from .views.exceluploadreverseengineering import ReverseEngineeringJSONView
+from .views.excelup_down_loadreverseengineering import ExcelUpDownloadForReverseEngineeringView
 
 from .views.testsviews import (
     UserTestResultsView,
@@ -67,14 +69,17 @@ urlpatterns = [
     path('tests/<str:test_code>/patient-codes/', PatientCodesByTestView.as_view(), name='patient-codes-by-test'),
     path('reverse/file/import-data/', GeneImportAPIView.as_view(), name='import_data'),
     path('reverse/file/load/', ExcelUploadView.as_view(), name='load_file'),
-    path('reverse/file/proccess_reverse/', ExcelUploadForReverseEngineeringView.as_view(), name='proccess_reverse'),
+    path('reverse/file/proccess_reverse/', ExcelUploadForReverseEngineeringView.as_view(), name='proccess_reverse'), 
     path('reverse/file/reverse_json/', ReverseEngineeringJSONView.as_view(), name='reverse_json'),
-    
-]
+    path('reverse/file/proccess_reverse_excel/', ExcelUpDownloadForReverseEngineeringView.as_view(), name='proccess_reverse_excel'), # este es reverse
+    path('reverse/file/download_reverse_excel/<str:test_code>/', ExcelUpDownloadForReverseEngineeringView.download_test_result, name='download_reverse_excel'), # este es reverse
+] 
 
 if settings.DEBUG:
     urlpatterns += [
         path('api/dev/clean-database/', DevelopmentCleanupView.as_view(), name='dev-clean-database'),
     ]
 
+
 urlpatterns += urlpatterns 
+
