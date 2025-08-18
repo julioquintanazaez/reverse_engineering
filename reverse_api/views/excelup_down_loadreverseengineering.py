@@ -95,12 +95,12 @@ class ExcelUpDownloadForReverseEngineeringView(GenericAPIView):
                             else:
                                 print(f"Error: hr.reveng_patience output None for {patiente_code}")
                     
-                    print("Combinar resultados")
+                    #print("Combinar resultados")
                     combined_data = combine_patient_genotype_data(
                         patient_data_list=patient_data_jsons,
                         patient_info_list=patient_info
                     )
-                    print("Convertir a json")
+                    #print("Convertir a json")
                     # Convertir el JSON combinado a Excel
                     excel_content  = json_to_excel(combined_data)
                     
@@ -124,18 +124,13 @@ class ExcelUpDownloadForReverseEngineeringView(GenericAPIView):
 
             response = FileResponse(test.result_file.open('rb'))
             response['Content-Disposition'] = f'attachment; filename="{test.result_file.name.split("/")[-1]}"'
+        
+            # Opcional: establecer el tipo MIME si lo conoces
+            response['Content-Type'] = 'application/xlsx'  # por ejemplo para PDF
+
             return response
             
         return Response({'error':"Invalid input"}, status=status.HTTP_400_BAD_REQUEST)
-
-    @staticmethod
-    def download_test_result(request, test_code):
-        test = get_object_or_404(Test, test_code=test_code)
-        if test.result_file:
-            response = FileResponse(test.result_file.open('rb'))
-            response['Content-Disposition'] = f'attachment; filename="{test.result_file.name.split("/")[-1]}"'
-            return response
-        raise Http404("File not found")
 
 
 
