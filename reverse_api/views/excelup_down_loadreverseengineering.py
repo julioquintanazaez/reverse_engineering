@@ -19,6 +19,7 @@ from ..utils.json_to_excel import json_to_excel
 
 from django.utils import timezone
 from django.core.files.base import ContentFile
+from io import BytesIO
 
 from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404
@@ -66,13 +67,11 @@ class ExcelUpDownloadForReverseEngineeringView(GenericAPIView):
                 patient_data_jsons = []
                 patient_info = []
                 try:
-                    print("Entrar a procesar pacientes")
                     for patiente in patient_data["patience_list"]:
                         for patiente_code, genes_values in patiente.items():
                             #print(f"{patiente_code}: --- {genes_values}")
-                            print(f"Reverse para paciente {patiente_code}")
+                            #print(f"Reverse para paciente {patiente_code}")
                             response_json = hr.reveng_patience(genes_data=genes_values)
-                            print(f"Procesando datos de paciente {patiente_code}")
                             # Processing json here
                             if response_json is not None:
                                 patient_data_jsons.append(response_json)
@@ -95,25 +94,30 @@ class ExcelUpDownloadForReverseEngineeringView(GenericAPIView):
                                 patients_code.append(patiente_code)
                             else:
                                 print(f"Error: hr.reveng_patience output None for {patiente_code}")
-
-                    print("Combinar datos")
+                    
+                    print("Combinar resultados")
                     combined_data = combine_patient_genotype_data(
                         patient_data_list=patient_data_jsons,
                         patient_info_list=patient_info
                     )
-                    print(combined_data)
-
+                    print("Convertir a json")
                     # Convertir el JSON combinado a Excel
                     excel_content  = json_to_excel(combined_data)
                     
-                    # Guardar el archivo Excel en el modelo Test
+                    # Crear un archivo en memoria sin guardar en disco
                     file_name = f'reverse_engineering_{data_test}.xlsx'
+                    in_memory_file = BytesIO(excel_content.getvalue())
+                    
+                    # Guardar en el modelo sin persistir en disco
                     test.result_file.save(
-                        file_name, ContentFile(excel_content.getvalue())
+                        file_name, 
+                        ContentFile(in_memory_file.read()),
+                        save=False
                     )
+                    
+                    # Guardar el resto de los campos
                     test.save()
-
-
+                    
                 except Exception as e:
                     print(f"{'error:Fail reverse computations'}: {str(e)}")
                     return Response({'error':"Fail reverse computations"}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
@@ -122,7 +126,6 @@ class ExcelUpDownloadForReverseEngineeringView(GenericAPIView):
                 "test_code": test.test_code,
                 "user_id": test.user_code,
                 "patients_code": patients_code,
-                "excel_url": test.result_file.url if test.result_file else None
             }
 
             return Response(response_final, status=status.HTTP_200_OK)
