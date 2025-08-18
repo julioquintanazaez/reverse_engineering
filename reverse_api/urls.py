@@ -12,6 +12,7 @@ from .views.patiencegeneallelereference import GetPatienceReverseEngineeringView
 from .views.patientsview import TestPatientsPDFView, PatientCodesByTestView
 from .views.exceluploadreverseengineering import ReverseEngineeringJSONView
 from .views.excelup_down_loadreverseengineering import ExcelUpDownloadForReverseEngineeringView
+from .views.testresultdownloadview import TestResultDownloadView
 
 from .views.testsviews import (
     UserTestResultsView,
@@ -58,21 +59,21 @@ urlpatterns = [
     #path('get_reverse_engineering/', GetReverseEngineeringView.as_view(), name='get_reverse_engineering'),
     #path('get_patience_reverse_engineering/', GetPatienceReverseEngineeringView.as_view(), name='get_patience_reverse_engineering'),
     # Nuevos endpoint adicionados para manejar los requerimientos de las pruebas
-    path('tests/user/<str:user_code>/', UserTestResultsView.as_view(), name='user-test-results'),
+    #path('tests/user/<str:user_code>/', UserTestResultsView.as_view(), name='user-test-results'),
     path('tests/test/<str:test_code>/', TestResultDetailView.as_view(), name='test-result-detail'),
-    path('tests/user/<str:user_code>/test/<str:test_code>/', TestResultDetailView.as_view(), name='specific-test-result'),
+    #path('tests/user/<str:user_code>/test/<str:test_code>/', TestResultDetailView.as_view(), name='specific-test-result'),
     path('tests/search/', TestResultSearchView.as_view(), name='test-result-search'),
     path('tests/delete/<str:test_code>/', TestResultDeleteView.as_view(), name='test-result-delete'),
-    path('tests/delete/user/<str:user_code>/', UserTestResultsDeleteView.as_view(), name='test-user-delete'),
+    #path('tests/delete/user/<str:user_code>/', UserTestResultsDeleteView.as_view(), name='test-user-delete'),
     path('tests/<str:test_code>/patient/<str:patient_code>/pdf/', TestPatientsPDFView.as_view(), 
         name='test-paciente-pdf'),
     path('tests/<str:test_code>/patient-codes/', PatientCodesByTestView.as_view(), name='patient-codes-by-test'),
     path('reverse/file/import-data/', GeneImportAPIView.as_view(), name='import_data'),
-    path('reverse/file/load/', ExcelUploadView.as_view(), name='load_file'),
-    path('reverse/file/proccess_reverse/', ExcelUploadForReverseEngineeringView.as_view(), name='proccess_reverse'), 
-    path('reverse/file/reverse_json/', ReverseEngineeringJSONView.as_view(), name='reverse_json'),
+    #path('reverse/file/load/', ExcelUploadView.as_view(), name='load_file'),
+    #path('reverse/file/proccess_reverse/', ExcelUploadForReverseEngineeringView.as_view(), name='proccess_reverse'), 
+    #path('reverse/file/reverse_json/', ReverseEngineeringJSONView.as_view(), name='reverse_json'),
     path('reverse/file/proccess_reverse_excel/', ExcelUpDownloadForReverseEngineeringView.as_view(), name='proccess_reverse_excel'), # este es reverse
-    path('reverse/file/download_reverse_excel/<str:test_code>/', ExcelUpDownloadForReverseEngineeringView.download_test_result, name='download_reverse_excel'), # este es reverse
+    path('reverse/file/download-result/<str:test_code>/', TestResultDownloadView.as_view(), name='download_test_result'), # este es reverse
 ] 
 
 if settings.DEBUG:

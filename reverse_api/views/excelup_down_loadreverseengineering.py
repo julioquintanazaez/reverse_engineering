@@ -122,13 +122,9 @@ class ExcelUpDownloadForReverseEngineeringView(GenericAPIView):
                     print(f"{'error:Fail reverse computations'}: {str(e)}")
                     return Response({'error':"Fail reverse computations"}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
-            response_final = {
-                "test_code": test.test_code,
-                "user_id": test.user_code,
-                "patients_code": patients_code,
-            }
-
-            return Response(response_final, status=status.HTTP_200_OK)
+            response = FileResponse(test.result_file.open('rb'))
+            response['Content-Disposition'] = f'attachment; filename="{test.result_file.name.split("/")[-1]}"'
+            return response
             
         return Response({'error':"Invalid input"}, status=status.HTTP_400_BAD_REQUEST)
 
