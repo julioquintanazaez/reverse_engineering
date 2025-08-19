@@ -6,6 +6,6 @@ from rest_framework import status
 class HomeView(APIView):
     def get(self, request):
         data = {
-            "message": "Welcome to API Reverse Engineering v 0.0.1.1.7u!"
+            "message": "Welcome to API Reverse Engineering v 0.0.1.1.7a!"
         }
         return Response(data, status=status.HTTP_200_OK)
