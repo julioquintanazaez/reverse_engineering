@@ -10,7 +10,7 @@ from ..models.allelesreference import Alleles_Reference
 
 from ..serializers.genesallelesreferenceerializer import GenesAllelesReferenceSerializer
 
-from ..utils.handle_reverse_engineering import Handle_Reverse_Engineering
+from ..utils.reverseengineeringprocessor import ReverseEngineeringProcessor
 
 # Create your views here.
 
@@ -31,7 +31,7 @@ class GetReverseEngineeringView(GenericAPIView):
     
     def post(self, request):
 
-        hr = Handle_Reverse_Engineering() 
+        hr = ReverseEngineeringProcessor() 
 
         serializer = GenesAllelesReferenceSerializer(data=request.data)
         
@@ -39,7 +39,7 @@ class GetReverseEngineeringView(GenericAPIView):
             return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
         
         try:
-            response = hr.get_reverse_engineering(serializer.data) 
+            response = hr.process_patient_genes(serializer.data) 
             return Response(response, status=status.HTTP_200_OK)
         except:
             raise Response({"status":"Some error occur processing reverse engineering"}, status=status.HTTP_400_BAD_REQUEST)

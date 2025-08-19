@@ -27,6 +27,6 @@ class TestResultDownloadView(APIView):
         
         # Crear una respuesta con los bytes
         response = HttpResponse(file_data, content_type='application/octet-stream')
-        response['Content-Disposition'] = f'attachment; filename="result_{test.test_code}.bin"'
+        response['Content-Disposition'] = f'attachment; filename="result_{test.test_code}.xlsx"'
         
         return response

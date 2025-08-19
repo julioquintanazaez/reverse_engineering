@@ -1,12 +1,12 @@
 
-from reverse_api.utils.handle_formula import HandleFormulaUtils
+from reverse_api.utils.formulaprocessor import FormulaProcessor
 
 
 # Create an instance of the class
 
-handleF = HandleFormulaUtils()
+handleF = FormulaProcessor()
 
 formula = ["G/G", "C/C", "0", "WT", "a/A", "a/a", "G/g"]
 
-assert(handleF.filter_lower_case_formula(formula))
+assert(handleF.filter_lowercase(formula))
 

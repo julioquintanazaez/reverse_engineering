@@ -8,7 +8,7 @@ from rest_framework import parsers, renderers
 from ..serializers.excelserializer import ExcelSerializer, InputTestSerializer
 
 from ..utils.readchunkallelescombinations import ExcelFileParseAllelesCombinationsUtils
-from ..utils.handle_reverse_engineering import Handle_Reverse_Engineering
+from ..utils.reverseengineeringprocessor import ReverseEngineeringProcessor
 
 from ..models.allelesreference import Alleles_Reference
 from ..models.tests import Test
@@ -38,7 +38,7 @@ class ExcelUpDownloadForReverseEngineeringView(GenericAPIView):
 
     def post(self, request):
         efpac = ExcelFileParseAllelesCombinationsUtils() 
-        hr = Handle_Reverse_Engineering() 
+        hr = ReverseEngineeringProcessor() 
         serializer_file = self.serializer_class(data=request.data)
         if serializer_file.is_valid(raise_exception=True):
             data_user = serializer_file.validated_data['userid']
@@ -71,7 +71,7 @@ class ExcelUpDownloadForReverseEngineeringView(GenericAPIView):
                         for patiente_code, genes_values in patiente.items():
                             #print(f"{patiente_code}: --- {genes_values}")
                             #print(f"Reverse para paciente {patiente_code}")
-                            response_json = hr.reveng_patience(genes_data=genes_values)
+                            response_json = hr.process_patient_genes(genes_data=genes_values)
                             # Processing json here
                             if response_json is not None:
                                 patient_data_jsons.append(response_json)

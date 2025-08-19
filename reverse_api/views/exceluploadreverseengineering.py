@@ -8,7 +8,7 @@ from rest_framework import parsers, renderers
 from ..serializers.excelserializer import ExcelSerializer, InputTestSerializer
 
 from ..utils.readchunkallelescombinations import ExcelFileParseAllelesCombinationsUtils
-from ..utils.handle_reverse_engineering import Handle_Reverse_Engineering
+from ..utils.reverseengineeringprocessor import ReverseEngineeringProcessor
 
 from ..models.allelesreference import Alleles_Reference
 from ..models.tests import Test
@@ -28,7 +28,7 @@ class ExcelUploadForReverseEngineeringView(GenericAPIView):
 
     def post(self, request):
         efpac = ExcelFileParseAllelesCombinationsUtils() 
-        hr = Handle_Reverse_Engineering() 
+        hr = ReverseEngineeringProcessor() 
         serializer_file = self.serializer_class(data=request.data)
         if serializer_file.is_valid(raise_exception=True):
             data_user = serializer_file.validated_data['userid']
@@ -63,7 +63,7 @@ class ExcelUploadForReverseEngineeringView(GenericAPIView):
                         # Iterar sobre cada clave-valor en el diccionario
                         for patiente_code, genes_values in patiente.items():
                             print(f"{patiente_code}: --- {genes_values}")
-                            response_json = hr.reveng_patience(genes_data=genes_values)
+                            response_json = hr.process_patient_genes(genes_data=genes_values)
                             #print(f"Test code: {test.id}--{test.test_code} with User code: {patiente_code} and JSON length: {len(response_json)}")
                             try: 
                                 # Guardar en base de datos json de reverse           
@@ -103,7 +103,7 @@ class ReverseEngineeringJSONView(GenericAPIView):
 
     def post(self, request):
         efpac = ExcelFileParseAllelesCombinationsUtils() 
-        hr = Handle_Reverse_Engineering() 
+        hr = ReverseEngineeringProcessor() 
         serializer_file = self.serializer_class(data=request.data)
         if serializer_file.is_valid(raise_exception=True):
             data_user = serializer_file.validated_data['userid']
@@ -127,7 +127,7 @@ class ReverseEngineeringJSONView(GenericAPIView):
                     # Iterar sobre cada clave-valor en el diccionario
                     for patiente_code, genes_values in patiente.items():
                         print(f"{patiente_code}: --- {genes_values}")
-                        response_json = hr.reveng_patience(genes_data=genes_values)
+                        response_json = hr.process_patient_genes(genes_data=genes_values)
                         #print(f"Test code: {test.id}--{test.test_code} with User code: {patiente_code} and JSON length: {len(response_json)}")
                         
                         patients_code.append(response_json)

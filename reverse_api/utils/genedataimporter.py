@@ -57,7 +57,7 @@ class GeneDataImporter:
         return "dbSNP" in [str(cell) for cell in row]
 
     def _is_gene_data_row(self, row):
-        return len(row) > 3 and str(row[3]).strip()
+        return len(row) > 3 and str(row[4]).strip()
 
     def _detect_formula_columns(self, row):
         """Detecta las columnas de fórmula basadas en los números de grupo"""

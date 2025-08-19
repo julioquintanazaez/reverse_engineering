@@ -24,7 +24,7 @@ from .views.testsviews import (
 )
 
 from .views.cleanupall import DevelopmentCleanupView
-from .views.exceluploadview2 import GeneImportAPIView
+from .views.excelimportdataview import GeneImportAPIView
 
 from django.contrib import admin
 from rest_framework.routers import DefaultRouter

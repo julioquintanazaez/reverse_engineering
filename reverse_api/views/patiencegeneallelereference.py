@@ -8,7 +8,7 @@ from rest_framework.generics import GenericAPIView
 from ..serializers.patiencesserializer import ListPatienceGenesAllelesReferenceSerializer
 from ..serializers.genesallelesreferenceerializer import GenesAllelesReferenceSerializer
 
-from ..utils.handle_reverse_engineering import Handle_Reverse_Engineering
+from ..utils.reverseengineeringprocessor import ReverseEngineeringProcessor
 
 # Create your views here.
 
@@ -19,7 +19,7 @@ y sus pares de alleles.
 class GetPatienceReverseEngineeringView(GenericAPIView):  
     serializer_class = ListPatienceGenesAllelesReferenceSerializer
     def post(self, request):
-        hr = Handle_Reverse_Engineering() 
+        hr = ReverseEngineeringProcessor() 
         serializer = ListPatienceGenesAllelesReferenceSerializer(data=request.data)
         
         if not serializer.is_valid():
@@ -29,7 +29,7 @@ class GetPatienceReverseEngineeringView(GenericAPIView):
             data = serializer.data["patience_list"]
             for item in data:
                 patience = item["patience"]
-                patience_genes = hr.get_patience_reverse_engineering(item)
+                patience_genes = hr.process_patient_genes(item)
                 patience_list.append({
                             "patience" : patience,
                             "genes_data": patience_genes
