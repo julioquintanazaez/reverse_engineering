@@ -19,7 +19,8 @@ from .views.testsviews import (
     TestResultDetailView,
     TestResultSearchView,
     TestResultDeleteView,
-    UserTestResultsDeleteView
+    UserTestResultsDeleteView,
+    AllTestResultsDeleteView
 )
 
 from .views.cleanupall import DevelopmentCleanupView
@@ -68,6 +69,7 @@ urlpatterns = [
     path('tests/<str:test_code>/patient/<str:patient_code>/pdf/', TestPatientsPDFView.as_view(), 
         name='test-paciente-pdf'),
     path('tests/<str:test_code>/patient-codes/', PatientCodesByTestView.as_view(), name='patient-codes-by-test'),
+    path('tests/delete-all-test', AllTestResultsDeleteView.as_view(), name='delete-all-test'),
     path('reverse/file/import-data/', GeneImportAPIView.as_view(), name='import_data'),
     #path('reverse/file/load/', ExcelUploadView.as_view(), name='load_file'),
     #path('reverse/file/proccess_reverse/', ExcelUploadForReverseEngineeringView.as_view(), name='proccess_reverse'), 

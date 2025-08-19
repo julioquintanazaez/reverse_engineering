@@ -109,3 +109,27 @@ class UserTestResultsDeleteView(generics.GenericAPIView):
         count = queryset.count()
         queryset.delete()
         return Response({"detail": f"A {count} tests from user {user_code} were deleted"}, status=status.HTTP_200_OK)
+
+class AllTestResultsDeleteView(generics.GenericAPIView):
+    """
+    Endpoint para eliminar TODOS los tests de la base de datos
+    ¡ADVERTENCIA! Esta acción es irreversible y eliminará todos los registros.
+    """
+    queryset = Test.objects.all()
+    serializer_class = TestSerializer
+
+    def delete(self, request, *args, **kwargs):
+        # Obtener conteo antes de eliminar
+        total_count = self.get_queryset().count()
+        
+        # Eliminar todos los registros
+        deletion_result = self.get_queryset().delete()
+        
+        # deletion_result es una tupla: (total_deleted, {modelo: num_deleted})
+        deleted_count = deletion_result[0]
+
+        return Response({
+            "detail": f"Se eliminaron todos los tests ({deleted_count} registros)",
+            "total_deleted": deleted_count,
+            "previous_count": total_count
+        }, status=status.HTTP_200_OK)

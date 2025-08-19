@@ -21,7 +21,7 @@ from django.utils import timezone
 from django.core.files.base import ContentFile
 from io import BytesIO
 
-from django.http import FileResponse, Http404
+from django.http import FileResponse, Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 
 from datetime import datetime
@@ -100,37 +100,36 @@ class ExcelUpDownloadForReverseEngineeringView(GenericAPIView):
                         patient_data_list=patient_data_jsons,
                         patient_info_list=patient_info
                     )
-                    #print("Convertir a json")
-                    # Convertir el JSON combinado a Excel
-                    excel_content  = json_to_excel(combined_data)
                     
-                    # Crear un archivo en memoria sin guardar en disco
-                    file_name = f'reverse_engineering_{data_test}.xlsx'
-                    in_memory_file = BytesIO(excel_content.getvalue())
+                    # Generar el Excel en memoria
+                    excel_io = json_to_excel(combined_data)
+                    excel_content = excel_io.getvalue()
                     
-                    # Guardar en el modelo sin persistir en disco
-                    test.result_file.save(
-                        file_name, 
-                        ContentFile(in_memory_file.read()),
-                        save=False
-                    )
-                    
-                    # Guardar el resto de los campos
+                    # Guardar el contenido binario directamente en el BinaryField
+                    test.result_file = excel_content
                     test.save()
                     
+                    # Crear respuesta desde el contenido binario
+                    response = HttpResponse(excel_content, 
+                                         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+                    response['Content-Disposition'] = f'attachment; filename="reverse_engineering_{data_test}.xlsx"'
+                    
+                    return response
+                    
                 except Exception as e:
-                    print(f"{'error:Fail reverse computations'}: {str(e)}")
-                    return Response({'error':"Fail reverse computations"}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
-
-            response = FileResponse(test.result_file.open('rb'))
-            response['Content-Disposition'] = f'attachment; filename="{test.result_file.name.split("/")[-1]}"'
-        
-            # Opcional: establecer el tipo MIME si lo conoces
-            response['Content-Type'] = 'application/xlsx'  # por ejemplo para PDF
-
-            return response
+                    print(f"Error in reverse computations: {str(e)}")
+                    return Response({'error': f"Fail reverse computations: {str(e)}"}, 
+                                  status=status.HTTP_422_UNPROCESSABLE_ENTITY)
             
-        return Response({'error':"Invalid input"}, status=status.HTTP_400_BAD_REQUEST)
-
+            # Si el test ya existía y tiene datos
+            if test.result_file:
+                response = HttpResponse(test.result_file, 
+                                       content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+                response['Content-Disposition'] = f'attachment; filename="reverse_engineering_{data_test}.xlsx"'
+                return response
+            
+            return Response({'error': "No results available"}, status=status.HTTP_404_NOT_FOUND)
+            
+        return Response({'error': "Invalid input"}, status=status.HTTP_400_BAD_REQUEST)
 
 

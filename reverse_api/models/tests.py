@@ -7,8 +7,10 @@ class Test(models.Model):
     user_code = models.TextField(max_length=100, db_index=True)
     test_code = models.TextField(max_length=100, unique=True, db_index=True)
     created_at = models.DateTimeField(default=timezone.now)
-    result_file = models.FileField(upload_to='reverse_engineering_results/', null=True, blank=True)
-    
+    #result_file = models.FileField(upload_to='reverse_engineering_results/', null=True, blank=True)
+    #result_file = models.FileField(upload_to=lambda instance, filename: f'temp_results/{filename}')
+    result_file = models.BinaryField(null=True, blank=True)
+
     class Meta:
         ordering = ['-created_at']
         indexes = [
