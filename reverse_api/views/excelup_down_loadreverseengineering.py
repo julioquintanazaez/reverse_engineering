@@ -79,6 +79,7 @@ class ExcelUpDownloadForReverseEngineeringView(GenericAPIView):
                                     "Accession number": patiente_code,
                                     "First name": "Name1",
                                     "Last name": "LastN1",
+                                    "Middle initial": " ",
                                     "DOB": datetime.now().strftime("%m/%d/%Y %H:%M:%S"),
                                     "Ordering physician": "Dtor",
                                     "Gender": "Unknown",

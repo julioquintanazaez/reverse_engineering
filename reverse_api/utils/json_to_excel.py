@@ -13,8 +13,9 @@ def json_to_excel(json_data):
     pacientes = list(json_data[next(iter(json_data))].keys())
     
     # Separar campos en diferentes categorías
-    info_personal = ['Accession number', 'First name', 'Last name', 'Middle initial', 
-                    'Ordering physician', 'DOB', 'SSN', 'Gender', 'Ethnicity',
+    info_personal = ['Accession number', 'First name', 'Last name', 'Middle initial']
+    
+    info_technical = ['Ordering physician', 'DOB', 'SSN', 'Gender', 'Ethnicity',
                     'Collection date', 'Received date', 'Report generated',
                     'Specimen type', 'Report format type', 'Current medications']
     
@@ -40,6 +41,16 @@ def json_to_excel(json_data):
     # Añadir espacio entre secciones
     row_num += 2
     
+    for campo in info_technical:
+        if campo in json_data:
+            worksheet.cell(row=row_num, column=1, value=campo)
+            for col_num, paciente in enumerate(pacientes, start=2):
+                worksheet.cell(row=row_num, column=col_num, value=json_data[campo].get(paciente, ''))
+            row_num += 1
+    
+    # Añadir espacio entre secciones
+    row_num += 8
+
     # Escribir información médica sin encabezados
     for campo in info_medica:
         if campo in json_data:
@@ -49,7 +60,7 @@ def json_to_excel(json_data):
             row_num += 1
     
     # Añadir espacio antes de SNPs
-    row_num += 2
+    row_num += 1
     
     # Escribir encabezado para SNPs (personalizado)
     worksheet.cell(row=row_num, column=1, value='rs#')
