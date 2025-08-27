@@ -70,7 +70,7 @@ def json_to_excel(json_data):
     row_num += 1
     
     # Escribir datos de SNPs
-    rs_fields = [k for k in json_data.keys() if k not in info_personal + info_medica and k != 'Patient ID']
+    rs_fields = [k for k in json_data.keys() if k not in info_personal + info_technical + info_medica and k != 'Patient ID']
     for campo in rs_fields:
         worksheet.cell(row=row_num, column=1, value=campo)
         for col_num, paciente in enumerate(pacientes, start=2):
