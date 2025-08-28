@@ -53,10 +53,11 @@ class ExcelUpDownloadForReverseEngineeringView(GenericAPIView):
                 return Response({'error':"Fail to load combinations"}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
             
             try:     
-                # Guardar en base de datos json de reverse           
+                # Guardar en base de datos json de reverse
+                code = str(datetime.now().strftime("%m/%d/%Y%H:%M:%S"))   # Eliminar cuando lógica de usuarios este lista      
                 test, created_test = Test.objects.get_or_create(
-                    user_code = data_user,
-                    test_code = data_test
+                    user_code = data_user +"_"+ code,
+                    test_code = data_test +"_"+ code
                 ) 
             except:
                 return Response({'error':"Fail to save tests in db"}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
