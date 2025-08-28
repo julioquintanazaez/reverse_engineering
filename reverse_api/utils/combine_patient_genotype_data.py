@@ -46,10 +46,10 @@ def combine_patient_genotype_data(patient_data_list, patient_info_list=None):
     
     # Procesar datos genéticos de cada paciente
     markers_data = defaultdict(dict)
-    
+    print(len(patient_data_list))
     for i, patient_data in enumerate(patient_data_list, 1):
         pat_key = f"Pat{i}"
-        print(f"Procesando datos de Pat{i}")
+        #print(f"Procesando datos de Pat{i}")
         # Extraer datos de marcadores genéticos
         if 'response' in patient_data:
             for gene_data in patient_data['response']:

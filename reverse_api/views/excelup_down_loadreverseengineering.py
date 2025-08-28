@@ -25,6 +25,7 @@ from django.http import FileResponse, Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 
 from datetime import datetime
+import json
 
 # Create your views here.
 
@@ -75,35 +76,44 @@ class ExcelUpDownloadForReverseEngineeringView(GenericAPIView):
                             response_json = hr.process_patient_genes(genes_data=genes_values)
                             # Processing json here
                             if response_json is not None:
-                                patient_data_jsons.append(response_json)
-                                patient_info.append({
-                                    "Accession number": patiente_code,
-                                    "First name": "Name1",
-                                    "Last name": "LastN1",
-                                    "Middle initial": " ",
-                                    "DOB": datetime.now().strftime("%m/%d/%Y %H:%M:%S"),
-                                    "Ordering physician": "Dtor",
-                                    "Gender": "Unknown",
-                                    "Collection date":	datetime.now().strftime("%m/%d/%Y %H:%M:%S"),
-                                    "Received date": datetime.now().strftime("%m/%d/%Y %H:%M:%S"),
-                                    "Report generated": datetime.now().strftime("%m/%d/%Y %H:%M:%S"),
-                                    "Report format type": "F01",
-                                    "Renal function": 1,
-                                    "Smoker": 1, 
-                                    "Daily or nearly daily alcohol intake":	1,
-                                    "Language":	"L001"
-                                })
-                                patients_code.append(patiente_code)
+                                 # Si es un diccionario con clave "response"
+                                if isinstance(response_json, dict) and "response" in response_json:
+                                    if response_json["response"]:  # Verifica que no esté vacío
+                                        patient_data_jsons.append(response_json)
+                                        patient_info.append({
+                                            "Accession number": patiente_code,
+                                            "First name": "Name1",
+                                            "Last name": "LastN1",
+                                            "Middle initial": " ",
+                                            "DOB": datetime.now().strftime("%m/%d/%Y %H:%M:%S"),
+                                            "Ordering physician": "Dtor",
+                                            "Gender": "Unknown",
+                                            "Collection date":	datetime.now().strftime("%m/%d/%Y %H:%M:%S"),
+                                            "Received date": datetime.now().strftime("%m/%d/%Y %H:%M:%S"),
+                                            "Report generated": datetime.now().strftime("%m/%d/%Y %H:%M:%S"),
+                                            "Report format type": "F01",
+                                            "Renal function": 1,
+                                            "Smoker": 1, 
+                                            "Daily or nearly daily alcohol intake":	1,
+                                            "Language":	"L001"
+                                        })
+                                        patients_code.append(patiente_code)
                             else:
                                 print(f"Error: hr.reveng_patience output None for {patiente_code}")
                     
-                    #print("Combinar resultados")
+                    # Guardar en archivo
+                    #with open('datos.json', 'w', encoding='utf-8') as archivo:
+                    #    json.dump(patient_data_jsons, archivo, ensure_ascii=False, indent=4)
+                    #print("JSON guardado exitosamente")
+
+                    print("Combinar resultados")
                     combined_data = combine_patient_genotype_data(
                         patient_data_list=patient_data_jsons,
                         patient_info_list=patient_info
                     )
                     
                     # Generar el Excel en memoria
+                    print("Generar el Excel en memoria")                    
                     excel_io = json_to_excel(combined_data)
                     excel_content = excel_io.getvalue()
                     
